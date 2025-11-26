@@ -1,0 +1,15 @@
+# Dependencies
+/node_modules
+
+# Build outputs
+/dist
+/src-tauri/target
+.vite
+.vite-temp
+
+# Lockfiles
+bun.lockb
+Cargo.lock
+
+# Logs
+*.log

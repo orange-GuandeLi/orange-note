@@ -1,0 +1,111 @@
+/* Basic editor styles */
+.ProseMirror {
+    color: var(--color-neutral-content);
+
+    h1 {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+    h2 {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+    h3 {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    h4 {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    h5 {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    h6 {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    ul:not([data-type="taskList"]) {
+        list-style-type: disc;
+    }
+
+    ul:not([data-type="taskList"]) ul {
+        list-style-type: circle;
+    }
+
+    ul:not([data-type="taskList"]) ul ul {
+        list-style-type: square;
+    }
+
+    ol {
+        list-style-type: decimal;
+    }
+
+    ol ol {
+        list-style-type: lower-alpha;
+    }
+
+    ol ol ol {
+        list-style-type: lower-roman;
+    }
+
+    ul:not([data-type="taskList"]),
+    ol {
+        padding-left: 2rem; /* Add more padding for better indentation */
+        margin: 0.25rem 0;
+    }
+
+    blockquote {
+        border-left: 0.25rem solid var(--color-base-300);
+        padding-left: 1rem;
+    }
+
+    a {
+        color: var(--color-primary);
+        cursor: pointer;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    /* Task list styles */
+    ul[data-type="taskList"] {
+        list-style: none;
+        margin-left: 0;
+        padding: 0;
+
+        li {
+            align-items: flex-start;
+            display: flex;
+
+            > label {
+                flex: 0 0 auto;
+                margin-right: 0.5rem;
+                user-select: none;
+            }
+
+            > div {
+                flex: 1 1 auto;
+            }
+
+            &[data-checked="true"] > div {
+                text-decoration: line-through;
+                color: var(--color-base-300);
+            }
+        }
+
+        input[type="checkbox"] {
+            cursor: pointer;
+            accent-color: var(--color-primary);
+            width: 1em;
+            height: 1em;
+        }
+
+        ul[data-type="taskList"] {
+            margin: 0;
+        }
+    }
+}
