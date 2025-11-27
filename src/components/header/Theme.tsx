@@ -1,5 +1,6 @@
 import { Palette } from "lucide-solid";
 import { For } from "solid-js";
+import { Icon } from "../icon";
 
 export function Theme() {
     const themes = [
@@ -53,7 +54,7 @@ export function Theme() {
                 role="button"
                 class="btn btn-outline btn-primary"
             >
-                <Palette class="w-4 h-4" /> Theme
+                <Icon icon={Palette} /> Theme
             </button>
             <ul
                 tabIndex={0}

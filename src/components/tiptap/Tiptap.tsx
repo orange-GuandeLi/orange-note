@@ -14,6 +14,8 @@ import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Markdown } from "@tiptap/markdown";
 import { PasteMarkdown } from "./extansions/pasteMarkdown";
+import { CircleAlert, CircleCheck } from "lucide-solid";
+import { Icon } from "../icon";
 
 type Props = {
     content: string;
@@ -81,7 +83,6 @@ export function Tiptap(props: Props) {
         ref?.addEventListener('keydown', handleKeyDown);
     });
 
-
     createEffect(
         on(() => props.content, (content) => {
             const e = editor();
@@ -110,12 +111,18 @@ export function Tiptap(props: Props) {
         <div class="relative size-full">
             <div
                 id="editor"
-                class="h-full w-full p-4 overflow-auto"
+                class="h-full w-full p-6 overflow-auto"
                 ref={ref}
             ></div>
             {isDirty() ? 
-                <div class="absolute top-4 right-4 badge badge-error">未保存</div> :
-                <div class="absolute top-4 right-4 badge badge-success">已保存</div>
+                <div class="absolute top-4 right-4 badge badge-sm badge-outline badge-error">
+                    <Icon icon={CircleAlert} />
+                    未同步
+                </div> :
+                <div class="absolute top-4 right-4 badge badge-sm badge-outline badge-success">
+                    <Icon icon={CircleCheck} />
+                    已同步
+                </div>
             }
         </div>
     );
