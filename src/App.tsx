@@ -1,8 +1,12 @@
+import { createSignal, Show } from "solid-js";
 import { Header } from "./components/header/Header";
 import { NoFile } from "./components/no-file/NoFile";
 import { Tiptap } from "./components/tiptap/Tiptap";
+import { Toaster } from 'solid-toast';
 
 export function App() {
+    const [fileContent, setFileContent] = createSignal("");
+
     return (
         <div class="w-full h-full flex flex-col">
             <div class="drawer lg:drawer-open">
@@ -17,7 +21,7 @@ export function App() {
                         class="drawer-overlay"
                     ></label>
                     <ul class="menu min-h-full w-54 p-4 bg-base-200">
-                        <NoFile />
+                        <NoFile onOpenFile={setFileContent} />
                         {/* Sidebar content here */}
                         {/* <li>
                             <a>Sidebar Item 1</a>
@@ -30,9 +34,13 @@ export function App() {
             </div>
             <main class="flex-1 overflow-y-auto">
                 <div class="flex h-full justify-center items-center">
-                    <NoFile />
+                    <Show when={fileContent()} fallback={<NoFile onOpenFile={setFileContent} />}>
+                        <Tiptap content={fileContent()} />
+                    </Show>
                 </div>
             </main>
+
+            <Toaster />
         </div>
     );
 }

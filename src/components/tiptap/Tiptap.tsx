@@ -1,5 +1,6 @@
 import { createTiptapEditor } from "solid-tiptap";
 import StarterKit from "@tiptap/starter-kit";
+import { createEffect, on, onCleanup } from "solid-js";
 // 导入所有新插件
 import Image from "@tiptap/extension-image";
 import { Table } from "@tiptap/extension-table";
@@ -14,10 +15,14 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { Markdown } from "@tiptap/markdown";
 import { PasteMarkdown } from "./extansions/pasteMarkdown";
 
-export function Tiptap() {
+type Props = {
+    content: string;
+}
+
+export function Tiptap(props: Props) {
     let ref: HTMLDivElement | undefined;
 
-    createTiptapEditor(() => ({
+    const editor = createTiptapEditor(() => ({
         element: ref!,
         extensions: [
             StarterKit,
@@ -48,6 +53,29 @@ export function Tiptap() {
             },
         },
     }));
+
+    createEffect(
+        on(() => props.content, (content) => {
+            const e = editor();
+            if (!e) {
+                return;
+            }
+
+            if (e.isDestroyed) {
+                return;
+            }
+
+            if (content === e.getMarkdown()) {
+                return;
+            }
+
+            e.commands.setContent(e.markdown?.parse(content) || "");
+        }),
+    );
+
+    onCleanup(() => {
+        editor()?.destroy();
+    });
 
     return (
         <div
