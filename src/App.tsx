@@ -9,13 +9,13 @@ export function App() {
                 <div class="drawer-content">
                     <Header />
                 </div>
-                <div class="drawer-side bg-base-200">
+                <div class="drawer-side">
                     <label
                         for="NavDraw"
                         aria-label="close sidebar"
                         class="drawer-overlay"
                     ></label>
-                    <ul class="menu min-h-full w-54 p-4">
+                    <ul class="menu min-h-full w-54 p-4 bg-base-200">
                         {/* Sidebar content here */}
                         <li>
                             <a>Sidebar Item 1</a>
