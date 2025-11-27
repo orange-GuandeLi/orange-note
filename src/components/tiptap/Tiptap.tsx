@@ -11,7 +11,7 @@ import TaskItem from "@tiptap/extension-task-item";
 import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Markdown } from '@tiptap/markdown'
+import { Markdown } from "@tiptap/markdown";
 import { PasteMarkdown } from "./extansions/pasteMarkdown";
 
 export function Tiptap() {
@@ -49,5 +49,11 @@ export function Tiptap() {
         },
     }));
 
-    return <div id="editor" class="h-full w-full p-8 overflow-auto" ref={ref}></div>;
+    return (
+        <div
+            id="editor"
+            class="h-full w-full p-8 overflow-auto"
+            ref={ref}
+        ></div>
+    );
 }
