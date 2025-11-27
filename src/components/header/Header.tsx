@@ -1,8 +1,9 @@
 import { MenuIcon } from "lucide-solid";
+import { Theme } from "./Theme";
 
 export function Header() {
     return (
-        <div class="navbar bg-base-100 shadow-sm gap-4">
+        <header class="navbar bg-base-100 shadow-sm gap-4">
             <div class="flex-none">
                 <button class="btn btn-square btn-ghost">
                     <MenuIcon />
@@ -10,8 +11,8 @@ export function Header() {
             </div>
             <div class="flex-1 text-lg text-primary font-bold">Orange Note</div>
             <div class="flex-none">
-                <button class="btn btn-square btn-ghost"></button>
+                <Theme />
             </div>
-        </div>
+        </header>
     );
 }

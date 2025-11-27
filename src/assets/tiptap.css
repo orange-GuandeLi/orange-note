@@ -1,7 +1,5 @@
 /* Basic editor styles */
-.ProseMirror {
-    color: var(--color-neutral-content);
-
+.ProseMirror {h
     h1 {
         font-size: 3rem;
         font-weight: bold;
@@ -64,7 +62,6 @@
 
     a {
         color: var(--color-primary);
-        cursor: pointer;
     }
 
     a:hover {
