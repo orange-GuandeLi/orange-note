@@ -9,6 +9,10 @@
     "core:default",
     "opener:default",
     "dialog:default",
-    "fs:default"
+    "fs:default",
+    {
+      "identifier": "fs:allow-home-write",
+      "allow": [{ "path": "$APPDATA/*" }]
+    }
   ]
 }

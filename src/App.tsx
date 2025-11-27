@@ -2,13 +2,26 @@ import { createSignal, Show } from "solid-js";
 import { Header } from "./components/header/Header";
 import { NoFile, OpenFile } from "./components/no-file/NoFile";
 import { Tiptap } from "./components/tiptap/Tiptap";
-import { Toaster } from 'solid-toast';
+import toast, { Toaster } from 'solid-toast';
+import { writeFile } from '@tauri-apps/plugin-fs';
 
 export function App() {
     const [selectedFile, setSelectedFile] = createSignal<OpenFile>();
 
+    const handleSave = async (content: string) => {
+        try {
+            await writeFile(selectedFile()?.path || "", new TextEncoder().encode(content));
+            toast.success(`Successfully saved ${selectedFile()?.name || ""}`);
+            return true;
+        } catch (error) {
+            toast.error(`Failed to save ${selectedFile()?.name || ""}`);
+            console.error(`Failed to save ${selectedFile()?.name || ""}`, error);
+            return false;
+        }
+    }
+
     return (
-        <div class="w-full h-full">
+        <div class="size-full">
             <div class="drawer lg:drawer-open h-full">
                 <input id="NavDraw" type="checkbox" class="drawer-toggle" />
                 <div class="drawer-content flex flex-col">
@@ -21,7 +34,7 @@ export function App() {
                                 <div class="tabs tabs-box h-full rounded-none">
                                     <input type="radio" name="files" class="tab" aria-label={selectedFile()?.name || ""} checked={selectedFile()?.name === selectedFile()?.name} />
                                     <div class="tab-content bg-base-100 border-base-300">
-                                        <Tiptap content={selectedFile()?.content || ""} />
+                                        <Tiptap content={selectedFile()?.content || ""} onSave={handleSave} />
                                     </div>
 
                                     {/* <input type="radio" name="files" class="tab" aria-label="Tab 2" />

@@ -1,6 +1,6 @@
 import { createTiptapEditor } from "solid-tiptap";
 import StarterKit from "@tiptap/starter-kit";
-import { createEffect, on, onCleanup } from "solid-js";
+import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 // 导入所有新插件
 import Image from "@tiptap/extension-image";
 import { Table } from "@tiptap/extension-table";
@@ -17,10 +17,13 @@ import { PasteMarkdown } from "./extansions/pasteMarkdown";
 
 type Props = {
     content: string;
+    onSave: (content: string) => Promise<boolean>;
 }
 
 export function Tiptap(props: Props) {
     let ref: HTMLDivElement | undefined;
+    const [isDirty, setIsDirty] = createSignal(false);
+    let originalContent = props.content;
 
     const editor = createTiptapEditor(() => ({
         element: ref!,
@@ -49,10 +52,35 @@ export function Tiptap(props: Props) {
         ],
         editorProps: {
             attributes: {
-                class: "w-full h-full focus:outline-none",
+                class: "size-full focus:outline-none",
             },
         },
+        onUpdate: ({ editor }) => {
+            const markdown = editor.getMarkdown();
+            setIsDirty(markdown !== originalContent);
+        },
     }));
+
+    const handleKeyDown = async (e: KeyboardEvent) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+            e.preventDefault();
+            await handleSave();
+        }
+    };
+
+    const handleSave = async () => {
+        const mdContent = editor()?.getMarkdown() || '';
+        // 调用接口保存文件
+        if (await props.onSave(mdContent)) {
+            originalContent = mdContent;
+            setIsDirty(false);
+        }
+    };
+
+    onMount(() => {
+        ref?.addEventListener('keydown', handleKeyDown);
+    });
+
 
     createEffect(
         on(() => props.content, (content) => {
@@ -74,14 +102,21 @@ export function Tiptap(props: Props) {
     );
 
     onCleanup(() => {
+        ref?.removeEventListener('keydown', handleKeyDown);
         editor()?.destroy();
     });
 
     return (
-        <div
-            id="editor"
-            class="h-full w-full p-4 overflow-auto"
-            ref={ref}
-        ></div>
+        <div class="relative size-full">
+            <div
+                id="editor"
+                class="h-full w-full p-4 overflow-auto"
+                ref={ref}
+            ></div>
+            {isDirty() ? 
+                <div class="absolute top-4 right-4 badge badge-error">未保存</div> :
+                <div class="absolute top-4 right-4 badge badge-success">已保存</div>
+            }
+        </div>
     );
 }
