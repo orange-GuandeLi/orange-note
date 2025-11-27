@@ -1,4 +1,5 @@
 import { Header } from "./components/header/Header";
+import { NoFile } from "./components/no-file/NoFile";
 import { Tiptap } from "./components/tiptap/Tiptap";
 
 export function App() {
@@ -16,18 +17,21 @@ export function App() {
                         class="drawer-overlay"
                     ></label>
                     <ul class="menu min-h-full w-54 p-4 bg-base-200">
+                        <NoFile />
                         {/* Sidebar content here */}
-                        <li>
+                        {/* <li>
                             <a>Sidebar Item 1</a>
                         </li>
                         <li>
                             <a>Sidebar Item 2</a>
-                        </li>
+                        </li> */}
                     </ul>
                 </div>
             </div>
             <main class="flex-1 overflow-y-auto">
-                <Tiptap />
+                <div class="flex h-full justify-center items-center">
+                    <NoFile />
+                </div>
             </main>
         </div>
     );
