@@ -80,7 +80,7 @@ export function Tiptap(props: Props) {
     return (
         <div
             id="editor"
-            class="h-full w-full p-8 overflow-auto"
+            class="h-full w-full p-4 overflow-auto"
             ref={ref}
         ></div>
     );

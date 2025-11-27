@@ -2,8 +2,14 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { readDir, readFile } from '@tauri-apps/plugin-fs';
 import toast from 'solid-toast';
 
+export type OpenFile = {
+    path: string;
+    name: string;
+    content: string;
+}
+
 type Props = {
-    onOpenFile: (file: string) => void;
+    onOpenFile: (file: OpenFile) => void;
 }
 
 export function NoFile(props: Props) {
@@ -21,7 +27,11 @@ export function NoFile(props: Props) {
                     const content = await readFile(filePath as string);
                     // 返回文件真实内容
                     const textDecoder = new TextDecoder("utf-8");
-                    props.onOpenFile(textDecoder.decode(content));
+                    props.onOpenFile({
+                        path: filePath,
+                        name: filePath.split("/").pop() || "",
+                        content: textDecoder.decode(content),
+                    });
                 } catch (e2) {
                     toast.error(`Failed to read ${filePath} as a directory or file`);
                     console.error(`Failed to read ${filePath} as a directory or file`, e2);
