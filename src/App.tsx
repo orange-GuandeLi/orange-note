@@ -5,7 +5,7 @@ import { Tiptap } from "./components/tiptap/Tiptap";
 import toast, { Toaster } from "solid-toast";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { Icon } from "./components/icon";
-import { FilePlusCorner, FolderOpenDot, FolderPlus, Settings } from "lucide-solid";
+import { FilePlusCorner, FolderOpenDot, FolderPlus, Settings, X } from "lucide-solid";
 import { OpenFile, readFileOrFolder } from "./functions";
 import { HomeHero } from "./components/HomeHero";
 
@@ -58,18 +58,18 @@ export function App() {
                                     <HomeHero onFileOpen={handleFileOpen} />
                                 }
                             >
-                                <div class="tabs tabs-box h-full rounded-none">
-                                    <input
-                                        type="radio"
-                                        name="files"
-                                        class="tab"
-                                        aria-label={selectedFile()?.name || ""}
-                                        checked={
-                                            selectedFile()?.name ===
-                                            selectedFile()?.name
-                                        }
-                                    />
-                                    <div class="tab-content bg-base-100 border-base-300">
+                                <div class="flex flex-col size-full">
+                                    <div role="tablist" class="tabs tabs-box rounded-none">
+                                        <a role="tab" class="tab w-auto h-auto px-4 py-2 pr-2 text-sm group" classList={{
+                                            "tab-active": true
+                                        }}>
+                                            <span>{selectedFile()?.name}</span>
+                                            <button class="btn btn-ghost btn-primary btn-square btn-xs ml-2">
+                                                <Icon icon={X} size="small" />
+                                            </button>
+                                        </a>
+                                    </div>
+                                    <div class="flex-1 min-h-0">
                                         <Tiptap
                                             content={
                                                 selectedFile()?.content || ""
@@ -77,12 +77,6 @@ export function App() {
                                             onSave={handleSave}
                                         />
                                     </div>
-
-                                    {/* <input type="radio" name="files" class="tab" aria-label="Tab 2" />
-                                    <div class="tab-content bg-base-100 border-base-300 p-6">Tab content 2</div>
-
-                                    <input type="radio" name="files" class="tab" aria-label="Tab 3" />
-                                    <div class="tab-content bg-base-100 border-base-300 p-6">Tab content 3</div> */}
                                 </div>
                             </Show>
                         </div>

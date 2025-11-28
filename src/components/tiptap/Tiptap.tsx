@@ -54,7 +54,7 @@ export function Tiptap(props: Props) {
         ],
         editorProps: {
             attributes: {
-                class: "size-full focus:outline-none",
+                class: "size-full focus:outline-none text-sm",
             },
         },
         onUpdate: ({ editor }) => {
