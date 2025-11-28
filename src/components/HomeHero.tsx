@@ -17,7 +17,7 @@ export function HomeHero(props: Props) {
                         <p class="my-2 text-xs">It's a software focused solely on Markdown writing, providing a WYSIWYG Markdown writing experience</p>
                         <p class="text-xs">Thanks to <a href="https://v2.tauri.app/" title="Tauri" class="text-secondary hover:underline">Tauri</a> and <a href="https://tiptap.dev/" title="Tiptap" class="text-secondary hover:underline">Tiptap</a>.</p>
                     </div>
-                    <button class="btn btn-primary mt-4" onclick={() => readFileOrFolder(props.onFileOpen)}>
+                    <button class="btn btn-primary btn-dash mt-4" onclick={() => readFileOrFolder(props.onFileOpen)}>
                         Open File or Folder
                     </button>
                 </div>

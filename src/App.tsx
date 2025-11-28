@@ -92,7 +92,7 @@ export function App() {
                     <div class="menu min-h-full w-54 bg-base-200 p-0">
                         <div class="flex justify-between items-center bg-base-100 shadow h-16 p-2 border-r border-base-200">
                             <h2 class="text-lg font-bold text-primary">
-                                Orange Note
+                                OrangeNote
                             </h2>
                             <div class="flex gap-1 items-center">
                                 <button

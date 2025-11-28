@@ -15,7 +15,7 @@ export function NoFile(props: Props) {
                 You have not selected any files or folders yet.
             </p>
             <button class="btn btn-primary btn-dash" onclick={openFile}>
-                Open file or folder
+                Open File or Folder
             </button>
         </div>
     );
