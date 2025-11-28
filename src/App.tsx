@@ -42,9 +42,6 @@ export function App() {
     }
 
     const handleFolderOpen = (files: RecursiveDirEntry[]) => {
-        if (drawLabelRef) {
-            drawLabelRef.click();
-        }
         setSelectedFiles(files);
     }
 
