@@ -115,12 +115,12 @@ export function Tiptap(props: Props) {
                 ref={ref}
             ></div>
             {isDirty() ? 
-                <div class="absolute top-4 right-4 badge badge-sm badge-outline badge-error">
-                    <Icon icon={CircleAlert} />
+                <div class="absolute bottom-4 right-4 badge badge-sm badge-dash badge-error">
+                    <Icon icon={CircleAlert} size="small" />
                     未同步
                 </div> :
-                <div class="absolute top-4 right-4 badge badge-sm badge-outline badge-success">
-                    <Icon icon={CircleCheck} />
+                <div class="absolute bottom-4 right-4 badge badge-sm badge-dash badge-success">
+                    <Icon icon={CircleCheck} size="small" />
                     已同步
                 </div>
             }

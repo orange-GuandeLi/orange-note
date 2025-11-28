@@ -1,5 +1,5 @@
 import { open } from '@tauri-apps/plugin-dialog';
-import { readDir, readFile } from '@tauri-apps/plugin-fs';
+import { readDir, readTextFile } from '@tauri-apps/plugin-fs';
 import toast from 'solid-toast';
 
 export type OpenFile = {
@@ -16,6 +16,12 @@ export function NoFile(props: Props) {
     const openFile = async () => {
         const filePath = await open({
             multiple: false,
+            filters: [
+                {
+                    extensions: ["md", "markdown"],
+                    name: "Markdown files",
+                }
+            ]
         });
         
         if (filePath) {
@@ -24,13 +30,12 @@ export function NoFile(props: Props) {
                 console.log(entries);
             } catch (error) {
                 try {
-                    const content = await readFile(filePath as string);
+                    const content = await readTextFile(filePath);
                     // 返回文件真实内容
-                    const textDecoder = new TextDecoder("utf-8");
                     props.onOpenFile({
                         path: filePath,
                         name: filePath.split("/").pop() || "",
-                        content: textDecoder.decode(content),
+                        content,
                     });
                 } catch (e2) {
                     toast.error(`Failed to read ${filePath} as a directory or file`);
