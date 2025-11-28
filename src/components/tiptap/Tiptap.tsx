@@ -101,6 +101,7 @@ export function Tiptap(props: Props) {
                 }
 
                 e.commands.setContent(e.markdown?.parse(content) || "");
+                e.commands.focus("end");
             },
         ),
     );

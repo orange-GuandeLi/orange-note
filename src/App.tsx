@@ -105,7 +105,7 @@ export function App() {
                                                 return (
                                                     <a role="tab" class="tab w-auto h-auto px-4 py-2 pr-2 text-sm group max-w-36 flex" classList={{
                                                         "tab-active": item.path === currentOpenedFile()?.path
-                                                    }} title={item.path}>
+                                                    }} title={item.path} onclick={() => setCurrentOpenedFile(item)}>
                                                         <span class="flex-1 min-w-0 truncate">{item.name}{hasDuplicateName() ? `(${item.path})` : ""}</span>
                                                         <button class="btn btn-ghost btn-primary btn-square btn-xs ml-2 shrink-0">
                                                             <Icon icon={X} size="small" />
@@ -117,9 +117,7 @@ export function App() {
                                     </div>
                                     <div class="flex-1 min-h-0">
                                         <Tiptap
-                                            content={
-                                                currentOpenedFile()?.content || ""
-                                            }
+                                            content={currentOpenedFile()?.content || ""}
                                             onSave={handleSave}
                                         />
                                     </div>
