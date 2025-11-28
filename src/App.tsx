@@ -1,4 +1,4 @@
-import { createSignal, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import { Header } from "./components/header/Header";
 import { NoFile } from "./components/no-file/NoFile";
 import { Tiptap } from "./components/tiptap/Tiptap";
@@ -6,25 +6,28 @@ import toast, { Toaster } from "solid-toast";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { Icon } from "./components/icon";
 import { FilePlusCorner, FolderOpenDot, FolderPlus, Settings, X } from "lucide-solid";
-import { OpenFile, readFileOrFolder } from "./functions";
+import { getFileContent, OpenFile, readFile, RecursiveDirEntry } from "./functions";
 import { HomeHero } from "./components/HomeHero";
+import { FileList } from "./components/FileList";
 
 export function App() {
-    const [selectedFile, setSelectedFile] = createSignal<OpenFile>();
+    const [currentOpenedFile, setCurrentOpenedFile] = createSignal<OpenFile>();
+    const [openedFiles, setOpenedFiles] = createSignal<OpenFile[]>([]);
+    const [selectedFiles, setSelectedFiles] = createSignal<RecursiveDirEntry[]>([]);
     let drawLabelRef: HTMLLabelElement | undefined;
 
     const handleSave = async (content: string) => {
         try {
             await writeFile(
-                selectedFile()?.path || "",
+                currentOpenedFile()?.path || "",
                 new TextEncoder().encode(content),
             );
-            toast.success(`Successfully saved ${selectedFile()?.name || ""}`);
+            toast.success(`Successfully saved ${currentOpenedFile()?.name || ""}`);
             return true;
         } catch (error) {
-            toast.error(`Failed to save ${selectedFile()?.name || ""}`);
+            toast.error(`Failed to save ${currentOpenedFile()?.name || ""}`);
             console.error(
-                `Failed to save ${selectedFile()?.name || ""}`,
+                `Failed to save ${currentOpenedFile()?.name || ""}`,
                 error,
             );
             return false;
@@ -35,7 +38,43 @@ export function App() {
         if (drawLabelRef) {
             drawLabelRef.click();
         }
-        setSelectedFile(file);
+        setCurrentOpenedFile(file);
+    }
+
+    const handleFolderOpen = (files: RecursiveDirEntry[]) => {
+        if (drawLabelRef) {
+            drawLabelRef.click();
+        }
+        setSelectedFiles(files);
+    }
+
+    const handleFileClick = async (file: RecursiveDirEntry) => {
+        const openedFile = openedFiles().find((item) => item.path === file.path);
+        const fileContent = await getFileContent(file.path);
+        if (!fileContent) {
+            return;
+        }
+        if (openedFile) {
+            // 更新已打开文件的内容
+            openedFile.content = fileContent.content;
+            // 设置当前打开文件
+            setCurrentOpenedFile(openedFile);
+        } else {
+            // 加到列表
+            setOpenedFiles((prev) => (
+                [...prev, {
+                    path: fileContent.path,
+                    name: fileContent.name,
+                    content: fileContent.content,
+                }]
+            ));
+            // 设置当前打开文件
+            setCurrentOpenedFile({
+                path: fileContent.path,
+                name: fileContent.name,
+                content: fileContent.content,
+            });
+        }
     }
 
     return (
@@ -49,30 +88,37 @@ export function App() {
                             class="h-full w-full"
                             classList={{
                                 "flex justify-center items-center":
-                                    !selectedFile(),
+                                    !currentOpenedFile(),
                             }}
                         >
                             <Show
-                                when={selectedFile()}
+                                when={currentOpenedFile()}
                                 fallback={
-                                    <HomeHero onFileOpen={handleFileOpen} />
+                                    <HomeHero onFileOpen={handleFileOpen} onFolderOpen={handleFolderOpen} />
                                 }
                             >
                                 <div class="flex flex-col size-full">
                                     <div role="tablist" class="tabs tabs-box rounded-none">
-                                        <a role="tab" class="tab w-auto h-auto px-4 py-2 pr-2 text-sm group" classList={{
-                                            "tab-active": true
-                                        }}>
-                                            <span>{selectedFile()?.name}</span>
-                                            <button class="btn btn-ghost btn-primary btn-square btn-xs ml-2">
-                                                <Icon icon={X} size="small" />
-                                            </button>
-                                        </a>
+                                        <For each={openedFiles()}>
+                                            {(item) => {
+                                                const hasDuplicateName = () => openedFiles().filter((file) => file.name === item.name).length > 1;
+                                                return (
+                                                    <a role="tab" class="tab w-auto h-auto px-4 py-2 pr-2 text-sm group max-w-36 flex" classList={{
+                                                        "tab-active": item.path === currentOpenedFile()?.path
+                                                    }} title={item.path}>
+                                                        <span class="flex-1 min-w-0 truncate">{item.name}{hasDuplicateName() ? `(${item.path})` : ""}</span>
+                                                        <button class="btn btn-ghost btn-primary btn-square btn-xs ml-2 shrink-0">
+                                                            <Icon icon={X} size="small" />
+                                                        </button>
+                                                    </a>
+                                                )
+                                            }}
+                                        </For>
                                     </div>
                                     <div class="flex-1 min-h-0">
                                         <Tiptap
                                             content={
-                                                selectedFile()?.content || ""
+                                                currentOpenedFile()?.content || ""
                                             }
                                             onSave={handleSave}
                                         />
@@ -97,8 +143,13 @@ export function App() {
                             <div class="flex gap-1 items-center">
                                 <button
                                     class="btn btn-primary btn-soft btn-square btn-xs tooltip tooltip-primary tooltip-bottom"
-                                    data-tip="Open a file or folder"
-                                    onclick={() => readFileOrFolder(handleFileOpen)}
+                                    data-tip="Open a file"
+                                    onclick={async () => {
+                                        const content = await readFile();
+                                        if (content) {
+                                            handleFileOpen(content);
+                                        }
+                                    }}
                                 >
                                     <Icon icon={FolderOpenDot} size="small" />
                                 </button>
@@ -118,27 +169,18 @@ export function App() {
                         </div>
                         <div class="flex-1 overflow-auto min-h-0 border-base-100 border-r">
                             <Show
-                                when={selectedFile()}
+                                when={currentOpenedFile() || selectedFiles().length}
                                 fallback={
                                     <div class="p-4">
-                                        <NoFile onOpenFile={handleFileOpen} />
+                                        <NoFile onOpenFile={handleFileOpen} onOpenFolder={handleFolderOpen} />
                                     </div>
                                 }
                             >
-                                <ul class="p-2">
-                                    <li class="text-sm">
-                                        <a>{selectedFile()?.name || ""}</a>
-                                    </li>
-                                </ul>
+                                <div class="tree p-2">
+                                    <FileList files={selectedFiles()} onFileClick={handleFileClick} currentFile={currentOpenedFile} />
+                                </div>
                             </Show>
                         </div>
-                        {/* Sidebar content here */}
-                        {/* <li>
-                            <a>Sidebar Item 1</a>
-                        </li>
-                        <li>
-                            <a>Sidebar Item 2</a>
-                        </li> */}
                         <div class="flex-none p-4 flex justify-end border-base-100 border-r">
                             <button class="btn btn-xs btn-square">
                                 <Icon icon={Settings} />
