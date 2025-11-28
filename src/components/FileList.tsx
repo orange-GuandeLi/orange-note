@@ -5,7 +5,7 @@ import { FileBraces, Folder, FolderOpen } from "lucide-solid";
 
 type Props = {
     files: RecursiveDirEntry[];
-    onFileClick: (file: RecursiveDirEntry) => void;
+    onFileClick: (filePath: string) => void;
     currentFile: Accessor<OpenFile | undefined>;
 }
 
@@ -22,7 +22,7 @@ export function FileList(props: Props) {
                                 <li>
                                     <button classList={{
                                         "bg-primary text-primary-content": item.path === props.currentFile()?.path
-                                    }} onclick={() => props.onFileClick(item)}><Icon icon={FileBraces} /> {item.name}</button>
+                                    }} onclick={() => props.onFileClick(item.path)}><Icon icon={FileBraces} /> {item.name}</button>
                                 </li>
                             );
                         } else {

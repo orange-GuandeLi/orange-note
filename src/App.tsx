@@ -48,9 +48,9 @@ export function App() {
         setSelectedFiles(files);
     }
 
-    const handleFileClick = async (file: RecursiveDirEntry) => {
-        const openedFile = openedFiles().find((item) => item.path === file.path);
-        const fileContent = await getFileContent(file.path);
+    const handleFileClick = async (filePath: string) => {
+        const openedFile = openedFiles().find((item) => item.path === filePath);
+        const fileContent = await getFileContent(filePath);
         if (!fileContent) {
             return;
         }
@@ -98,14 +98,14 @@ export function App() {
                                 }
                             >
                                 <div class="flex flex-col size-full">
-                                    <div role="tablist" class="tabs tabs-box rounded-none">
+                                    <div role="tablist" class="tabs tabs-box rounded-none overflow-x-auto flex-nowrap">
                                         <For each={openedFiles()}>
                                             {(item) => {
                                                 const hasDuplicateName = () => openedFiles().filter((file) => file.name === item.name).length > 1;
                                                 return (
                                                     <a role="tab" class="tab w-auto h-auto px-4 py-2 pr-2 text-sm group max-w-36 flex" classList={{
                                                         "tab-active": item.path === currentOpenedFile()?.path
-                                                    }} title={item.path} onclick={() => setCurrentOpenedFile(item)}>
+                                                    }} title={item.path} onclick={() => handleFileClick(item.path)}>
                                                         <span class="flex-1 min-w-0 truncate">{item.name}{hasDuplicateName() ? `(${item.path})` : ""}</span>
                                                         <button class="btn btn-ghost btn-primary btn-square btn-xs ml-2 shrink-0">
                                                             <Icon icon={X} size="small" />
