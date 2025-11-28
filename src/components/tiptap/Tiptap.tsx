@@ -20,7 +20,7 @@ import { Icon } from "../icon";
 type Props = {
     content: string;
     onSave: (content: string) => Promise<boolean>;
-}
+};
 
 export function Tiptap(props: Props) {
     let ref: HTMLDivElement | undefined;
@@ -64,14 +64,14 @@ export function Tiptap(props: Props) {
     }));
 
     const handleKeyDown = async (e: KeyboardEvent) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        if ((e.metaKey || e.ctrlKey) && e.key === "s") {
             e.preventDefault();
             await handleSave();
         }
     };
 
     const handleSave = async () => {
-        const mdContent = editor()?.getMarkdown() || '';
+        const mdContent = editor()?.getMarkdown() || "";
         // 调用接口保存文件
         if (await props.onSave(mdContent)) {
             originalContent = mdContent;
@@ -80,30 +80,33 @@ export function Tiptap(props: Props) {
     };
 
     onMount(() => {
-        ref?.addEventListener('keydown', handleKeyDown);
+        ref?.addEventListener("keydown", handleKeyDown);
     });
 
     createEffect(
-        on(() => props.content, (content) => {
-            const e = editor();
-            if (!e) {
-                return;
-            }
+        on(
+            () => props.content,
+            (content) => {
+                const e = editor();
+                if (!e) {
+                    return;
+                }
 
-            if (e.isDestroyed) {
-                return;
-            }
+                if (e.isDestroyed) {
+                    return;
+                }
 
-            if (content === e.getMarkdown()) {
-                return;
-            }
+                if (content === e.getMarkdown()) {
+                    return;
+                }
 
-            e.commands.setContent(e.markdown?.parse(content) || "");
-        }),
+                e.commands.setContent(e.markdown?.parse(content) || "");
+            },
+        ),
     );
 
     onCleanup(() => {
-        ref?.removeEventListener('keydown', handleKeyDown);
+        ref?.removeEventListener("keydown", handleKeyDown);
         editor()?.destroy();
     });
 
@@ -114,16 +117,17 @@ export function Tiptap(props: Props) {
                 class="h-full w-full p-6 overflow-auto"
                 ref={ref}
             ></div>
-            {isDirty() ? 
+            {isDirty() ? (
                 <div class="absolute bottom-4 right-4 badge badge-sm badge-dash badge-error">
                     <Icon icon={CircleAlert} size="small" />
-                    未同步
-                </div> :
+                    Unsynchronized
+                </div>
+            ) : (
                 <div class="absolute bottom-4 right-4 badge badge-sm badge-dash badge-success">
                     <Icon icon={CircleCheck} size="small" />
-                    已同步
+                    Synchronized
                 </div>
-            }
+            )}
         </div>
     );
 }

@@ -1,23 +1,41 @@
 import { createSignal, Show } from "solid-js";
 import { Header } from "./components/header/Header";
-import { NoFile, OpenFile } from "./components/no-file/NoFile";
+import { NoFile } from "./components/no-file/NoFile";
 import { Tiptap } from "./components/tiptap/Tiptap";
-import toast, { Toaster } from 'solid-toast';
-import { writeFile } from '@tauri-apps/plugin-fs';
+import toast, { Toaster } from "solid-toast";
+import { writeFile } from "@tauri-apps/plugin-fs";
+import { Icon } from "./components/icon";
+import { FilePlusCorner, FolderOpenDot, FolderPlus, Settings } from "lucide-solid";
+import { OpenFile, readFileOrFolder } from "./functions";
+import { HomeHero } from "./components/HomeHero";
 
 export function App() {
     const [selectedFile, setSelectedFile] = createSignal<OpenFile>();
+    let drawLabelRef: HTMLLabelElement | undefined;
 
     const handleSave = async (content: string) => {
         try {
-            await writeFile(selectedFile()?.path || "", new TextEncoder().encode(content));
+            await writeFile(
+                selectedFile()?.path || "",
+                new TextEncoder().encode(content),
+            );
             toast.success(`Successfully saved ${selectedFile()?.name || ""}`);
             return true;
         } catch (error) {
             toast.error(`Failed to save ${selectedFile()?.name || ""}`);
-            console.error(`Failed to save ${selectedFile()?.name || ""}`, error);
+            console.error(
+                `Failed to save ${selectedFile()?.name || ""}`,
+                error,
+            );
             return false;
         }
+    };
+
+    const handleFileOpen = (file: OpenFile) => {
+        if (drawLabelRef) {
+            drawLabelRef.click();
+        }
+        setSelectedFile(file);
     }
 
     return (
@@ -27,14 +45,37 @@ export function App() {
                 <div class="drawer-content flex flex-col">
                     <Header />
                     <main class="flex-1 overflow-y-auto">
-                        <div class="h-full w-full" classList={{
-                            "flex justify-center items-center": !selectedFile()
-                        }}>
-                            <Show when={selectedFile()} fallback={<NoFile onOpenFile={setSelectedFile} />}>
+                        <div
+                            class="h-full w-full"
+                            classList={{
+                                "flex justify-center items-center":
+                                    !selectedFile(),
+                            }}
+                        >
+                            <Show
+                                when={selectedFile()}
+                                fallback={
+                                    <HomeHero onFileOpen={handleFileOpen} />
+                                }
+                            >
                                 <div class="tabs tabs-box h-full rounded-none">
-                                    <input type="radio" name="files" class="tab" aria-label={selectedFile()?.name || ""} checked={selectedFile()?.name === selectedFile()?.name} />
+                                    <input
+                                        type="radio"
+                                        name="files"
+                                        class="tab"
+                                        aria-label={selectedFile()?.name || ""}
+                                        checked={
+                                            selectedFile()?.name ===
+                                            selectedFile()?.name
+                                        }
+                                    />
                                     <div class="tab-content bg-base-100 border-base-300">
-                                        <Tiptap content={selectedFile()?.content || ""} onSave={handleSave} />
+                                        <Tiptap
+                                            content={
+                                                selectedFile()?.content || ""
+                                            }
+                                            onSave={handleSave}
+                                        />
                                     </div>
 
                                     {/* <input type="radio" name="files" class="tab" aria-label="Tab 2" />
@@ -47,18 +88,56 @@ export function App() {
                         </div>
                     </main>
                 </div>
-                <div class="drawer-side">
+                <div class="drawer-side overflow-visible">
                     <label
                         for="NavDraw"
                         aria-label="close sidebar"
                         class="drawer-overlay"
+                        ref={drawLabelRef}
                     ></label>
-                    <ul class="menu min-h-full w-54 p-4 bg-base-200 border-r border-base-100">
-                        <Show when={selectedFile()} fallback={<NoFile onOpenFile={setSelectedFile} />}>
-                            <li class="active">
-                                <a>{selectedFile()?.name || ""}</a>
-                            </li>
-                        </Show>
+                    <div class="menu min-h-full w-54 bg-base-200 p-0">
+                        <div class="flex justify-between items-center bg-base-100 shadow h-16 p-2 border-r border-base-200">
+                            <h2 class="text-lg font-bold text-primary">
+                                Orange Note
+                            </h2>
+                            <div class="flex gap-1 items-center">
+                                <button
+                                    class="btn btn-primary btn-soft btn-square btn-xs tooltip tooltip-primary tooltip-bottom"
+                                    data-tip="Open a file or folder"
+                                    onclick={() => readFileOrFolder(handleFileOpen)}
+                                >
+                                    <Icon icon={FolderOpenDot} size="small" />
+                                </button>
+                                <button
+                                    class="btn btn-primary btn-soft btn-square btn-xs tooltip tooltip-primary tooltip-bottom"
+                                    data-tip="Create a new file"
+                                >
+                                    <Icon icon={FilePlusCorner} size="small" />
+                                </button>
+                                <button
+                                    class="btn btn-primary btn-soft btn-square btn-xs tooltip tooltip-primary tooltip-bottom"
+                                    data-tip="Create a new folder"
+                                >
+                                    <Icon icon={FolderPlus} size="small" />
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-auto min-h-0 border-base-100 border-r">
+                            <Show
+                                when={selectedFile()}
+                                fallback={
+                                    <div class="p-4">
+                                        <NoFile onOpenFile={handleFileOpen} />
+                                    </div>
+                                }
+                            >
+                                <ul class="p-2">
+                                    <li class="text-sm">
+                                        <a>{selectedFile()?.name || ""}</a>
+                                    </li>
+                                </ul>
+                            </Show>
+                        </div>
                         {/* Sidebar content here */}
                         {/* <li>
                             <a>Sidebar Item 1</a>
@@ -66,7 +145,12 @@ export function App() {
                         <li>
                             <a>Sidebar Item 2</a>
                         </li> */}
-                    </ul>
+                        <div class="flex-none p-4 flex justify-end border-base-100 border-r">
+                            <button class="btn btn-xs btn-square">
+                                <Icon icon={Settings} />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
