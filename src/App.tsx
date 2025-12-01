@@ -109,6 +109,11 @@ export function App() {
         }
     }
 
+    const handleCloseFile = (filePath: string) => {
+        setOpenedFiles((prev) => prev.filter((item) => item.path !== filePath));
+        setCurrentOpenedFile((prev) => prev?.path === filePath ? undefined : prev);
+    }
+
     return (
         <div class="size-full">
             <div class="drawer lg:drawer-open h-full">
@@ -139,7 +144,10 @@ export function App() {
                                                         "tab-active": item.path === currentOpenedFile()?.path
                                                     }} title={item.path} onclick={() => handleFileClick(item.path)}>
                                                         <span class="flex-1 min-w-0 truncate">{item.name}{hasDuplicateName() ? `(${item.path})` : ""}</span>
-                                                        <button class="btn btn-ghost btn-primary btn-square btn-xs ml-2 shrink-0">
+                                                        <button class="btn btn-ghost btn-primary btn-square btn-xs ml-2 shrink-0" onclick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleCloseFile(item.path);
+                                                        }}>
                                                             <Icon icon={X} size="small" />
                                                         </button>
                                                     </a>

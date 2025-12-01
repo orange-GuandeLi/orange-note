@@ -1,5 +1,3 @@
-import { Icon } from "./icon";
-
 export function HomeHero() {
     return (
         <div class="hero bg-base-200 h-full">
@@ -15,7 +13,7 @@ export function HomeHero() {
                     </div>
                     <label
                         for="NavDraw"
-                        class="btn btn-primary drawer-button lg:hidden"
+                        class="btn btn-primary drawer-button"
                     >
                         Get Started
                     </label>
