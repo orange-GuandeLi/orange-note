@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, onMount, Show } from "solid-js";
 import { Header } from "./components/header/Header";
 import { NoFile } from "./components/no-file/NoFile";
 import { Tiptap } from "./components/tiptap/Tiptap";
@@ -15,6 +15,31 @@ export function App() {
     const [openedFiles, setOpenedFiles] = createSignal<OpenFile[]>([]);
     const [selectedFiles, setSelectedFiles] = createSignal<RecursiveDirEntry[]>([]);
     let drawLabelRef: HTMLLabelElement | undefined;
+
+    onMount(() => {
+        try {
+            const selectedFiles = localStorage.getItem("selectedFiles");
+            const openedFiles = localStorage.getItem("openedFiles");
+            const currentOpenedFilePath = localStorage.getItem("currentOpenedFilePath");
+            if (selectedFiles) {
+                handleFolderOpen(JSON.parse(selectedFiles));
+                let openedFilesArray: OpenFile[] = [];
+                if (openedFiles) {
+                    openedFilesArray = JSON.parse(openedFiles);
+                    setOpenedFiles(openedFilesArray);
+                }
+                if (currentOpenedFilePath) {
+                    const openedFile = openedFilesArray.find((item) => item.path === currentOpenedFilePath);
+                    console.log(openedFilesArray, currentOpenedFilePath);
+                    if (openedFile) {
+                        setCurrentOpenedFile(openedFile);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Failed to load currentOpenedFile from localStorage", error);
+        }
+    });
 
     const handleSave = async (content: string) => {
         try {
@@ -43,9 +68,18 @@ export function App() {
 
     const handleFolderOpen = (files: RecursiveDirEntry[]) => {
         setSelectedFiles(files);
+        localStorage.setItem("selectedFiles", JSON.stringify(files));
     }
 
     const handleFileClick = async (filePath: string) => {
+        if (currentOpenedFile()?.path === filePath) {
+            return;
+        }
+
+        if (drawLabelRef) {
+            drawLabelRef.click();
+        }
+
         const openedFile = openedFiles().find((item) => item.path === filePath);
         const fileContent = await getFileContent(filePath);
         if (!fileContent) {
@@ -56,6 +90,7 @@ export function App() {
             openedFile.content = fileContent.content;
             // 设置当前打开文件
             setCurrentOpenedFile(openedFile);
+            localStorage.setItem("currentOpenedFilePath", fileContent.path);
         } else {
             // 加到列表
             setOpenedFiles((prev) => (
@@ -65,12 +100,14 @@ export function App() {
                     content: fileContent.content,
                 }]
             ));
+            localStorage.setItem("openedFiles", JSON.stringify(openedFiles()));
             // 设置当前打开文件
             setCurrentOpenedFile({
                 path: fileContent.path,
                 name: fileContent.name,
                 content: fileContent.content,
             });
+            localStorage.setItem("currentOpenedFilePath", fileContent.path);
         }
     }
 
@@ -91,7 +128,7 @@ export function App() {
                             <Show
                                 when={currentOpenedFile()}
                                 fallback={
-                                    <HomeHero onFileOpen={handleFileOpen} onFolderOpen={handleFolderOpen} />
+                                    <HomeHero />
                                 }
                             >
                                 <div class="flex flex-col size-full">
