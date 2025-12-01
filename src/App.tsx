@@ -5,38 +5,31 @@ import { Tiptap } from "./components/tiptap/Tiptap";
 import toast, { Toaster } from "solid-toast";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { Icon } from "./components/icon";
-import { FilePlusCorner, FolderOpenDot, FolderPlus, Settings, X } from "lucide-solid";
-import { getFileContent, OpenFile, readFile, RecursiveDirEntry } from "./functions";
+import { File, FilePlusCorner, FolderOpenDot, FolderPlus, Settings, X } from "lucide-solid";
+import { getFileContent, OpenFile, readFile, readFolder, RecursiveDirEntry } from "./functions";
 import { HomeHero } from "./components/HomeHero";
 import { FileList } from "./components/FileList";
 
 export function App() {
-    const [currentOpenedFile, setCurrentOpenedFile] = createSignal<OpenFile>();
+    const [currentOpenedFile, setCurrentOpenedFile] = createSignal<Omit<OpenFile, "content">>();
     const [openedFiles, setOpenedFiles] = createSignal<OpenFile[]>([]);
     const [selectedFiles, setSelectedFiles] = createSignal<RecursiveDirEntry[]>([]);
     let drawLabelRef: HTMLLabelElement | undefined;
 
     onMount(() => {
         try {
-            const selectedFiles = localStorage.getItem("selectedFiles");
-            const openedFiles = localStorage.getItem("openedFiles");
-            const currentOpenedFilePath = localStorage.getItem("currentOpenedFilePath");
-            if (selectedFiles) {
-                handleFolderOpen(JSON.parse(selectedFiles));
-                let openedFilesArray: OpenFile[] = [];
-                if (openedFiles) {
-                    openedFilesArray = JSON.parse(openedFiles);
-                    setOpenedFiles(openedFilesArray);
-                }
-                if (currentOpenedFilePath) {
-                    const openedFile = openedFilesArray.find((item) => item.path === currentOpenedFilePath);
-                    console.log(openedFilesArray, currentOpenedFilePath);
-                    if (openedFile) {
-                        setCurrentOpenedFile(openedFile);
-                    }
+            const opendFilePath = localStorage.getItem("opendFilePath");
+            if (opendFilePath) {
+                if (opendFilePath) {
+                    getFileContent(opendFilePath).then((opendFile) => {
+                        if (opendFile) {
+                            handleFileOpen(opendFile);
+                        }
+                    });
                 }
             }
         } catch (error) {
+            localStorage.removeItem("opendFilePath");
             console.error("Failed to load currentOpenedFile from localStorage", error);
         }
     });
@@ -60,15 +53,23 @@ export function App() {
     };
 
     const handleFileOpen = (file: OpenFile) => {
-        if (drawLabelRef) {
-            drawLabelRef.click();
-        }
+        // 设置已选文件
+        setSelectedFiles([{
+            path: file.path,
+            name: file.name,
+            isDirectory: false,
+            isFile: true,
+            isSymlink: false,
+        }]);
+        localStorage.setItem("opendFilePath", file.path);
+        // 添加到已打开文件列表
+        setOpenedFiles([file]);
+        // 设置当前打开文件
         setCurrentOpenedFile(file);
     }
 
     const handleFolderOpen = (files: RecursiveDirEntry[]) => {
         setSelectedFiles(files);
-        localStorage.setItem("selectedFiles", JSON.stringify(files));
     }
 
     const handleFileClick = async (filePath: string) => {
@@ -90,7 +91,6 @@ export function App() {
             openedFile.content = fileContent.content;
             // 设置当前打开文件
             setCurrentOpenedFile(openedFile);
-            localStorage.setItem("currentOpenedFilePath", fileContent.path);
         } else {
             // 加到列表
             setOpenedFiles((prev) => (
@@ -100,14 +100,12 @@ export function App() {
                     content: fileContent.content,
                 }]
             ));
-            localStorage.setItem("openedFiles", JSON.stringify(openedFiles()));
             // 设置当前打开文件
             setCurrentOpenedFile({
                 path: fileContent.path,
                 name: fileContent.name,
                 content: fileContent.content,
             });
-            localStorage.setItem("currentOpenedFilePath", fileContent.path);
         }
     }
 
@@ -115,7 +113,7 @@ export function App() {
         <div class="size-full">
             <div class="drawer lg:drawer-open h-full">
                 <input id="NavDraw" type="checkbox" class="drawer-toggle" />
-                <div class="drawer-content flex flex-col">
+                <div class="drawer-content flex flex-col flex-1 min-h-0">
                     <Header />
                     <main class="flex-1 overflow-y-auto">
                         <div
@@ -149,11 +147,16 @@ export function App() {
                                             }}
                                         </For>
                                     </div>
-                                    <div class="flex-1 min-h-0">
-                                        <Tiptap
-                                            content={currentOpenedFile()?.content || ""}
-                                            onSave={handleSave}
-                                        />
+                                    <div class="flex-1 min-h-0 overflow-y-auto">
+                                        <For each={openedFiles()}>
+                                            {(item) => (
+                                                <Tiptap
+                                                    content={item.content || ""}
+                                                    onSave={handleSave}
+                                                    active={item.path === currentOpenedFile()?.path}
+                                                />
+                                            )}
+                                        </For>
                                     </div>
                                 </div>
                             </Show>
@@ -169,7 +172,7 @@ export function App() {
                     ></label>
                     <div class="menu min-h-full w-54 bg-base-200 p-0">
                         <div class="flex justify-between items-center bg-base-100 shadow h-16 p-2 border-r border-base-200">
-                            <h2 class="text-lg font-bold text-primary">
+                            <h2 class="font-bold text-primary">
                                 OrangeNote
                             </h2>
                             <div class="flex gap-1 items-center">
@@ -179,7 +182,22 @@ export function App() {
                                     onclick={async () => {
                                         const content = await readFile();
                                         if (content) {
+                                            if (drawLabelRef) {
+                                                drawLabelRef.click();
+                                            }
                                             handleFileOpen(content);
+                                        }
+                                    }}
+                                >
+                                    <Icon icon={File} size="small" />
+                                </button>
+                                <button
+                                    class="btn btn-primary btn-soft btn-square btn-xs tooltip tooltip-primary tooltip-bottom"
+                                    data-tip="Open a folder"
+                                    onclick={async () => {
+                                        const content = await readFolder();
+                                        if (content) {
+                                            handleFolderOpen(content);
                                         }
                                     }}
                                 >
@@ -204,7 +222,12 @@ export function App() {
                                 when={currentOpenedFile() || selectedFiles().length}
                                 fallback={
                                     <div class="p-4">
-                                        <NoFile onOpenFile={handleFileOpen} onOpenFolder={handleFolderOpen} />
+                                        <NoFile onOpenFile={(file) => {
+                                            if (drawLabelRef) {
+                                                drawLabelRef.click();
+                                            }
+                                            handleFileOpen(file);
+                                        }} onOpenFolder={handleFolderOpen} />
                                     </div>
                                 }
                             >

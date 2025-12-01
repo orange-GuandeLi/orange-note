@@ -20,6 +20,7 @@ import { Icon } from "../icon";
 type Props = {
     content: string;
     onSave: (content: string) => Promise<boolean>;
+    active: boolean;
 };
 
 export function Tiptap(props: Props) {
@@ -101,7 +102,7 @@ export function Tiptap(props: Props) {
                 }
 
                 e.commands.setContent(e.markdown?.parse(content) || "");
-                e.commands.focus("end");
+                e.commands.focus();
             },
         ),
     );
@@ -112,10 +113,13 @@ export function Tiptap(props: Props) {
     });
 
     return (
-        <div class="relative size-full">
+        <div class="relative size-full px-6 py-2" classList={{
+            "block": props.active,
+            "hidden": !props.active,
+        }}>
             <div
                 id="editor"
-                class="h-full w-full p-6 overflow-auto"
+                class="h-full w-full overflow-auto"
                 ref={ref}
             ></div>
             {isDirty() ? (

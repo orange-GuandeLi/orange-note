@@ -51,10 +51,10 @@ export async function getFileContent(filePath: string) {
         };
     } catch (e2) {
         toast.error(
-            `Failed to read ${filePath} as a directory or file`,
+            `Failed to read ${filePath} as a file`,
         );
         console.error(
-            `Failed to read ${filePath} as a directory or file`,
+            `Failed to read ${filePath} as a file`,
             e2,
         );
     }
