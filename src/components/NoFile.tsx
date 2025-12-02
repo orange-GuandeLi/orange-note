@@ -1,5 +1,5 @@
 import { File, Folder } from "lucide-solid";
-import { Icon } from "../icon";
+import { Icon } from "./Icon";
 
 type Props = {
     onOpenFile: () => void;

@@ -1,6 +1,6 @@
 import { Palette } from "lucide-solid";
 import { For } from "solid-js";
-import { Icon } from "../icon";
+import { Icon } from "./Icon";
 
 export function Theme() {
     const themes = [

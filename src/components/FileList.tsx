@@ -1,6 +1,6 @@
 import { createSignal, For } from "solid-js";
 import { RecursiveDirEntry } from "../functions";
-import { Icon } from "./icon";
+import { Icon } from "./Icon";
 import { FileBraces, Folder, FolderOpen } from "lucide-solid";
 
 type Props = {
