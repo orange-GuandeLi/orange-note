@@ -9,10 +9,18 @@
         "dialog:default",
         "fs:default",
         {
-            "identifier": "fs:allow-home-read-recursive",
+            "identifier": "fs:allow-read-text-file",
             "allow": [
                 {
-                    "path": "**"
+                    "path": "$HOME/**/*.md"
+                }
+            ]
+        },
+        {
+            "identifier": "fs:allow-home-write",
+            "allow": [
+                {
+                    "path": "$HOME/**/*.md"
                 }
             ]
         }
