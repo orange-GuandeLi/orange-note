@@ -1,3 +1,5 @@
+import { openUrl } from "@tauri-apps/plugin-opener";
+
 export function HomeHero() {
     return (
         <div class="hero bg-base-200 h-full">
@@ -15,14 +17,17 @@ export function HomeHero() {
                     <div class="py-6">
                         <p>
                             Welcome to{" "}
-                            <a
-                                href="https://github.com/orange-GuandeLi/orange-note"
+                            <button
+                                onclick={async () =>
+                                    await openUrl(
+                                        "https://github.com/orange-GuandeLi/orange-note",
+                                    )
+                                }
                                 title="Orange-note"
-                                class="text-secondary hover:underline"
-                                target="_blank"
+                                class="text-secondary hover:underline cursor-pointer"
                             >
                                 Orange-note
-                            </a>
+                            </button>
                         </p>
                         <p class="my-2 text-xs">
                             It's a software focused solely on Markdown writing,
@@ -30,23 +35,29 @@ export function HomeHero() {
                         </p>
                         <p class="text-xs">
                             Thanks to{" "}
-                            <a
-                                href="https://v2.tauri.app/"
+                            <button
+                                onclick={async () =>
+                                    await openUrl(
+                                        "https://v2.tauri.app/",
+                                    )
+                                }
                                 title="Tauri"
-                                class="text-secondary hover:underline"
-                                target="_blank"
+                                class="text-secondary hover:underline cursor-pointer"
                             >
                                 Tauri
-                            </a>{" "}
+                            </button >{" "}
                             and{" "}
-                            <a
-                                href="https://tiptap.dev/"
+                            <button
+                                onclick={async () =>
+                                    await openUrl(
+                                        "https://tiptap.dev/",
+                                    )
+                                }
                                 title="Tiptap"
-                                class="text-secondary hover:underline"
-                                target="_blank"
+                                class="text-secondary hover:underline cursor-pointer"
                             >
                                 Tiptap
-                            </a>
+                            </button>
                             .
                         </p>
                     </div>
