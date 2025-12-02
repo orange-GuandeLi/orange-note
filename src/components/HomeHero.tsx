@@ -19,6 +19,7 @@ export function HomeHero() {
                                 href="https://github.com/orange-GuandeLi/orange-note"
                                 title="Orange-note"
                                 class="text-secondary hover:underline"
+                                target="_blank"
                             >
                                 Orange-note
                             </a>
@@ -33,6 +34,7 @@ export function HomeHero() {
                                 href="https://v2.tauri.app/"
                                 title="Tauri"
                                 class="text-secondary hover:underline"
+                                target="_blank"
                             >
                                 Tauri
                             </a>{" "}
@@ -41,6 +43,7 @@ export function HomeHero() {
                                 href="https://tiptap.dev/"
                                 title="Tiptap"
                                 class="text-secondary hover:underline"
+                                target="_blank"
                             >
                                 Tiptap
                             </a>
