@@ -60,7 +60,7 @@ export async function getFileContent(filePath: string) {
     }
 }
 
-async function getFolderContent(folderPath: string) {
+export async function getFolderContent(folderPath: string) {
     try {
         const files = await readDirRecursively(folderPath);
         if (!files) {

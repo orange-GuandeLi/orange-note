@@ -1,12 +1,11 @@
-import { Accessor, createSignal, For } from "solid-js";
-import { OpenFile, RecursiveDirEntry } from "../functions";
+import { createSignal, For } from "solid-js";
+import { RecursiveDirEntry } from "../functions";
 import { Icon } from "./icon";
 import { FileBraces, Folder, FolderOpen } from "lucide-solid";
 
 type Props = {
     files: RecursiveDirEntry[];
     onFileClick: (filePath: string) => void;
-    currentFile: Accessor<Omit<OpenFile, "content"> | undefined>;
 }
 
 export function FileList(props: Props) {
@@ -21,7 +20,7 @@ export function FileList(props: Props) {
                             return (
                                 <li title={item.path}>
                                     <button classList={{
-                                        "bg-primary text-primary-content": item.path === props.currentFile()?.path
+                                        // "bg-primary text-primary-content": item.path === props.currentFile()?.path
                                     }} onclick={() => props.onFileClick(item.path)}><Icon icon={FileBraces} /> {item.name}</button>
                                 </li>
                             );
@@ -37,7 +36,7 @@ export function FileList(props: Props) {
                                         {item.name}
                                     </summary>
                                     {
-                                        item.children ? <FileList onFileClick={props.onFileClick} files={item.children} currentFile={props.currentFile} /> : null
+                                        item.children ? <FileList onFileClick={props.onFileClick} files={item.children} /> : null
                                     }
                                 </details>
                             </li>;
