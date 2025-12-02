@@ -15,7 +15,10 @@ export function NoFile(props: Props) {
             <button class="btn btn-primary btn-dash" onclick={props.onOpenFile}>
                 <Icon icon={File} /> Open File
             </button>
-            <button class="btn btn-primary btn-dash" onclick={props.onOpenFolder}>
+            <button
+                class="btn btn-primary btn-dash"
+                onclick={props.onOpenFolder}
+            >
                 <Icon icon={Folder} /> Open Folder
             </button>
         </div>

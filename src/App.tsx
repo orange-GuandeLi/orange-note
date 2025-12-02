@@ -1,5 +1,9 @@
+import { HomeHero } from "./components/HomeHero";
+
 export function App() {
     return (
-        <div class="text-primary">fdsafds</div>
-    )
+        <div class="h-svh w-svw">
+            <HomeHero />
+        </div>
+    );
 }

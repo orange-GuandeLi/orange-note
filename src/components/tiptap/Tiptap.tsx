@@ -12,8 +12,7 @@ export function Tiptap(props: Props) {
 
     const editor = createTiptapEditor(() => ({
         element: ref!,
-        extensions: [
-        ],
+        extensions: [],
         editorProps: {
             attributes: {
                 class: "size-full focus:outline-none text-sm",
@@ -28,9 +27,7 @@ export function Tiptap(props: Props) {
         }
     };
 
-    const handleSave = async () => {
-
-    };
+    const handleSave = async () => {};
 
     onMount(() => {
         ref?.addEventListener("keydown", handleKeyDown);
@@ -42,10 +39,13 @@ export function Tiptap(props: Props) {
     });
 
     return (
-        <div class="relative size-full px-6 py-2" classList={{
-            "block": props.active,
-            "hidden": !props.active,
-        }}>
+        <div
+            class="relative size-full px-6 py-2"
+            classList={{
+                block: props.active,
+                hidden: !props.active,
+            }}
+        >
             <div
                 id="editor"
                 class="h-full w-full overflow-auto"

@@ -15,14 +15,14 @@ export type RecursiveDirEntry = DirEntry & {
 
 export async function readFile() {
     const filePath = await open({
-            multiple: false,
-            filters: [
-                {
-                    extensions: ["md", "markdown"],
-                    name: "Markdown files",
-                },
-            ],
-        });
+        multiple: false,
+        filters: [
+            {
+                extensions: ["md", "markdown"],
+                name: "Markdown files",
+            },
+        ],
+    });
 
     if (filePath) {
         return await getFileContent(filePath);
@@ -50,13 +50,8 @@ export async function getFileContent(filePath: string) {
             content,
         };
     } catch (e2) {
-        toast.error(
-            `Failed to read ${filePath} as a file`,
-        );
-        console.error(
-            `Failed to read ${filePath} as a file`,
-            e2,
-        );
+        toast.error(`Failed to read ${filePath} as a file`);
+        console.error(`Failed to read ${filePath} as a file`, e2);
     }
 }
 
@@ -66,20 +61,16 @@ export async function getFolderContent(folderPath: string) {
         if (!files) {
             return;
         }
-       return files;
+        return files;
     } catch (e2) {
-        toast.error(
-            `Failed to read ${folderPath} as a directory`,
-        );
-        console.error(
-            `Failed to read ${folderPath} as a directory`,
-            e2,
-        );
+        toast.error(`Failed to read ${folderPath} as a directory`);
+        console.error(`Failed to read ${folderPath} as a directory`, e2);
     }
 }
 
-
-async function readDirRecursively(folderPath: string): Promise<RecursiveDirEntry[] | undefined> {
+async function readDirRecursively(
+    folderPath: string,
+): Promise<RecursiveDirEntry[] | undefined> {
     try {
         const files = await readDir(folderPath);
         const recursiveFiles = await Promise.all(
@@ -91,30 +82,31 @@ async function readDirRecursively(folderPath: string): Promise<RecursiveDirEntry
                     path: fullPath,
                     children: file.isDirectory
                         ? await readDirRecursively(fullPath)
-                        : undefined
+                        : undefined,
                 };
-            })
+            }),
         );
         const flatArray = recursiveFiles.flat();
-        return flatArray.filter((item) => {
-            const extension = item.name.split(".").pop();
-            return extension === "md" || extension === "markdown" || item.isDirectory;
-        }).sort((a, b) => {
-            if (a.isDirectory && !b.isDirectory) {
-                return -1;
-            }
-            if (!a.isDirectory && b.isDirectory) {
-                return 1;
-            }
-            return 0;
-        });
+        return flatArray
+            .filter((item) => {
+                const extension = item.name.split(".").pop();
+                return (
+                    extension === "md" ||
+                    extension === "markdown" ||
+                    item.isDirectory
+                );
+            })
+            .sort((a, b) => {
+                if (a.isDirectory && !b.isDirectory) {
+                    return -1;
+                }
+                if (!a.isDirectory && b.isDirectory) {
+                    return 1;
+                }
+                return 0;
+            });
     } catch (e2) {
-        toast.error(
-            `Failed to read ${folderPath} as a directory`,
-        );
-        console.error(
-            `Failed to read ${folderPath} as a directory`,
-            e2,
-        );
+        toast.error(`Failed to read ${folderPath} as a directory`);
+        console.error(`Failed to read ${folderPath} as a directory`, e2);
     }
 }
