@@ -1,7 +1,7 @@
-import { createSignal, For } from "solid-js";
+import { For } from "solid-js";
 import { RecursiveDirEntry } from "../functions";
 import { Icon } from "./Icon";
-import { FileBraces, Folder, FolderOpen } from "lucide-solid";
+import { FileBraces, Folder } from "lucide-solid";
 
 type Props = {
     files: RecursiveDirEntry[];
@@ -9,8 +9,6 @@ type Props = {
 };
 
 export function FileList(props: Props) {
-    const [isOpen, setIsOpen] = createSignal(false);
-
     return (
         <ul>
             <For each={props.files}>
@@ -33,17 +31,9 @@ export function FileList(props: Props) {
                     } else {
                         return (
                             <li title={item.path}>
-                                <details
-                                    onToggle={(e) =>
-                                        setIsOpen(e.currentTarget.open)
-                                    }
-                                >
+                                <details>
                                     <summary>
-                                        <Icon
-                                            icon={
-                                                isOpen() ? FolderOpen : Folder
-                                            }
-                                        />
+                                        <Icon icon={Folder}/>
                                         {item.name}
                                     </summary>
                                     {item.children ? (

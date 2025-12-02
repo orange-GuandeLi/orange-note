@@ -1,6 +1,10 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
 
-export function HomeHero() {
+type Props = {
+    onStart: () => void;
+};
+
+export function HomeHero(props: Props) {
     return (
         <div class="hero bg-base-200 h-full">
             <div class="hero-content text-center">
@@ -37,21 +41,17 @@ export function HomeHero() {
                             Thanks to{" "}
                             <button
                                 onclick={async () =>
-                                    await openUrl(
-                                        "https://v2.tauri.app/",
-                                    )
+                                    await openUrl("https://v2.tauri.app/")
                                 }
                                 title="Tauri"
                                 class="text-secondary hover:underline cursor-pointer"
                             >
                                 Tauri
-                            </button >{" "}
+                            </button>{" "}
                             and{" "}
                             <button
                                 onclick={async () =>
-                                    await openUrl(
-                                        "https://tiptap.dev/",
-                                    )
+                                    await openUrl("https://tiptap.dev/")
                                 }
                                 title="Tiptap"
                                 class="text-secondary hover:underline cursor-pointer"
@@ -61,9 +61,12 @@ export function HomeHero() {
                             .
                         </p>
                     </div>
-                    <label for="NavDraw" class="btn btn-primary drawer-button">
+                    <button
+                        onclick={props.onStart}
+                        class="btn btn-primary drawer-button"
+                    >
                         Get Started
-                    </label>
+                    </button>
                 </div>
             </div>
         </div>
