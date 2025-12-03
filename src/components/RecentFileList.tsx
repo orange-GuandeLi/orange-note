@@ -5,6 +5,7 @@ import { File, Folder } from "lucide-solid";
 
 type Props = {
     recentFiles: RecursiveDirEntry[];
+    onOpenFileOrFolder: (file: RecursiveDirEntry) => void;
 };
 
 export function RecentFileList(props: Props) {
@@ -22,7 +23,10 @@ export function RecentFileList(props: Props) {
                     <p class="text-lg">Recent Files:</p>
                     <For each={props.recentFiles}>
                         {(file) => (
-                            <button class="btn btn-link p-0 btn-sm">
+                            <button
+                                class="btn btn-link p-0 btn-sm"
+                                onclick={() => props.onOpenFileOrFolder(file)}
+                            >
                                 <Icon icon={file.isFile ? File : Folder} />
                                 <span class="truncate">{file.path}</span>
                             </button>

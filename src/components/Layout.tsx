@@ -11,9 +11,13 @@ export function Layout() {
     onMount(() => {
         const selectedFolder = localStorage.getItem("selectedFolder");
         if (selectedFolder) {
-            getFolderContent(selectedFolder).then((folder) => {
-                setFolder(folder);
-            });
+            try {
+                getFolderContent(selectedFolder).then((folder) => {
+                    setFolder(folder);
+                });
+            } catch {
+                toast.error("Failed to read folder");
+            }
         }
 
         try {
@@ -31,10 +35,11 @@ export function Layout() {
     >();
     const [recentFiles, setRecentFiles] = createSignal<RecursiveDirEntry[]>([]);
 
-    const handleOpenFolder = async () => {
+    const handleOpenFolder = () => {
         try {
-            const folder = await readFolder();
-            setFolder(folder);
+            readFolder().then((folder) => {
+                setFolder(folder);
+            });
         } catch {
             toast.error("Failed to read folder");
         }
@@ -60,6 +65,18 @@ export function Layout() {
             );
         } catch {
             toast.error("Failed to update recent folders");
+        }
+    };
+
+    const handleOpenFileOrFolder = (file: RecursiveDirEntry) => {
+        if (file.isDirectory) {
+            try {
+                getFolderContent(file.path).then((folder) => {
+                    setFolder(folder);
+                });
+            } catch {
+                toast.error("Failed to read folder");
+            }
         }
     };
 
@@ -100,6 +117,7 @@ export function Layout() {
             <main class="flex-1 min-w-54">
                 <RecentFileList
                     recentFiles={recentFiles()}
+                    onOpenFileOrFolder={handleOpenFileOrFolder}
                 />
             </main>
         </div>
