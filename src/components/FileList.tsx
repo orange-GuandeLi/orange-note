@@ -10,7 +10,7 @@ type Props = {
 
 export function FileList(props: Props) {
     return (
-        <ul class="max-w-full">
+        <ul class="w-full">
             <For each={props.files}>
                 {(item) => {
                     if (item.isFile) {
@@ -22,7 +22,7 @@ export function FileList(props: Props) {
                                             // "bg-primary text-primary-content": item.path === props.currentFile()?.path
                                         }
                                     }
-                                    class="max-w-full menu"
+                                    class="w-full menu"
                                     onclick={() => props.onFileClick(item.path)}
                                 >
                                     <Icon icon={File} />{" "}
@@ -33,7 +33,7 @@ export function FileList(props: Props) {
                     } else {
                         return (
                             <li title={item.path}>
-                                <details class="max-w-full">
+                                <details class="w-full">
                                     <summary>
                                         <Icon icon={Folder} />
                                         <span class="truncate">

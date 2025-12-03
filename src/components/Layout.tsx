@@ -3,21 +3,63 @@ import { FileList } from "./FileList";
 import { Icon } from "./Icon";
 import { RecentFileList } from "./RecentFileList";
 import { NoFile } from "./NoFile";
-import { createSignal, Show } from "solid-js";
-import { readFolder, RecursiveDirEntry } from "../functions";
+import { createSignal, onMount, Show } from "solid-js";
+import { getFolderContent, readFolder, RecursiveDirEntry } from "../functions";
 import toast from "solid-toast";
 
 export function Layout() {
+    onMount(() => {
+        const selectedFolder = localStorage.getItem("selectedFolder");
+        if (selectedFolder) {
+            getFolderContent(selectedFolder).then((folder) => {
+                setFolder(folder);
+            });
+        }
+
+        try {
+            const recentFilesJSON = JSON.parse(
+                localStorage.getItem("recentFolders") || "[]"
+            ) as RecursiveDirEntry[];
+            setRecentFiles(recentFilesJSON);
+        } catch {
+            toast.error("Failed to read recent files");
+        }
+    });
+
     const [selectedFolder, setSelectedFolder] = createSignal<
         RecursiveDirEntry | undefined
     >();
+    const [recentFiles, setRecentFiles] = createSignal<RecursiveDirEntry[]>([]);
 
     const handleOpenFolder = async () => {
         try {
             const folder = await readFolder();
-            setSelectedFolder(folder);
+            setFolder(folder);
         } catch {
             toast.error("Failed to read folder");
+        }
+    };
+
+    const setFolder = (folder: RecursiveDirEntry | undefined) => {
+        if (!folder) {
+            return;
+        }
+        setSelectedFolder(folder);
+        localStorage.setItem("selectedFolder", folder.path);
+        try {
+            const recentFolders = JSON.parse(
+                localStorage.getItem("recentFolders") || "[]"
+            ) as RecursiveDirEntry[];
+            // Remove duplicates
+            const uniqueFolders = recentFolders.filter(
+                (f) => f.path !== folder.path
+            );
+            localStorage.setItem(
+                "recentFolders",
+                JSON.stringify([folder, ...uniqueFolders])
+            );
+        } catch {
+            toast.error("Failed to update recent folders");
         }
     };
 
@@ -57,43 +99,7 @@ export function Layout() {
             </aside>
             <main class="flex-1 min-w-54">
                 <RecentFileList
-                    recentFiles={[
-                        {
-                            name: "testtesttesttesttesttesttesttesttesttest.md",
-                            isDirectory: false,
-                            isFile: false,
-                            isSymlink: false,
-                            path: "/User/orange/code/note/test.md",
-                        },
-                        {
-                            name: "testtesttesttesttesttesttesttesttesttest.md",
-                            isDirectory: false,
-                            isFile: true,
-                            isSymlink: false,
-                            path: "/User/orange/code/note/test.md",
-                        },
-                        {
-                            name: "testtesttesttesttesttesttesttesttesttest.md",
-                            isDirectory: false,
-                            isFile: true,
-                            isSymlink: false,
-                            path: "/User/orange/code/note/test.md",
-                        },
-                        {
-                            name: "testtesttesttesttesttesttesttesttesttest.md",
-                            isDirectory: false,
-                            isFile: false,
-                            isSymlink: false,
-                            path: "/User/orange/code/note/test.md",
-                        },
-                        {
-                            name: "testtesttesttesttesttesttesttesttesttest.md",
-                            isDirectory: false,
-                            isFile: true,
-                            isSymlink: false,
-                            path: "/User/orange/code/note/test.md",
-                        },
-                    ]}
+                    recentFiles={recentFiles()}
                 />
             </main>
         </div>
