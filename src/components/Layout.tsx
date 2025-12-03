@@ -1,4 +1,4 @@
-import { FilePlus, FolderPlus, RotateCcw } from "lucide-solid";
+import { FilePlus, FolderPlus, RotateCcw, X } from "lucide-solid";
 import { FileList } from "./FileList";
 import { Icon } from "./Icon";
 import { RecentFileList } from "./RecentFileList";
@@ -6,6 +6,7 @@ import { NoFile } from "./NoFile";
 import { createSignal, Match, onMount, Show, Switch } from "solid-js";
 import { getFolderContent, OpenFile, readFolder, RecursiveDirEntry } from "../functions";
 import toast from "solid-toast";
+import { Tiptap } from "./tiptap/Tiptap";
 
 export function Layout() {
     onMount(() => {
@@ -120,17 +121,39 @@ export function Layout() {
                 </Show>
             </aside>
             <main class="flex-1 min-w-54">
-                <Switch>
+                {/* <Switch>
                     <Match when={!currentFile()}>
                         <RecentFileList
                             recentFiles={recentFiles()}
                             onOpenFileOrFolder={handleOpenFileOrFolder}
                         />
-                    </Match>
-                    <Match when={currentFile()}>
-                        {currentFile()!.content}
-                    </Match>
-                </Switch>
+                    </Match> */}
+                    {/* <Match when={currentFile()}> */}
+                        <div class="size-full flex flex-col">
+                            <div role="tablist" class="tabs tabs-box tabs-sm shadow rounded-none flex-nowrap overflow-x-auto shrink-0">
+                                <a role="tab" class="tab tab-active relative max-w-30 pr-8">
+                                    <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
+                                    <span class="truncate">Tab 1 Tab 1 Tab 1 Tab 1 Tab 1</span>
+                                </a>
+                                <a role="tab" class="tab relative max-w-30 pr-8">
+                                    <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
+                                    <span class="truncate">Tab 1 Tab 1 Tab 1 Tab 1 Tab 1</span>
+                                </a>
+                                <a role="tab" class="tab relative max-w-30 pr-8">
+                                    <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
+                                    <span class="truncate">Tab 1 Tab 1 Tab 1 Tab 1 Tab 1</span>
+                                </a>
+                                <a role="tab" class="tab relative max-w-30 pr-8">
+                                    <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
+                                    <span class="truncate">Tab 1 Tab 1 Tab 1 Tab 1 Tab 1</span>
+                                </a>
+                            </div>
+                            <div class="flex-1 min-h-0">
+                                <Tiptap content={"## fdsafdsaf"} onSave={() => {}} active={true} />
+                            </div>
+                        </div>
+                    {/* </Match>
+                </Switch> */}
             </main>
         </div>
     );

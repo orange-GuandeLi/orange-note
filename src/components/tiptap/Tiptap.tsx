@@ -1,9 +1,12 @@
 import { createTiptapEditor } from "solid-tiptap";
 import { onCleanup, onMount } from "solid-js";
+import Document from '@tiptap/extension-document'
+import Text from '@tiptap/extension-text'
+import Paragraph from '@tiptap/extension-paragraph'
 
 type Props = {
     content: string;
-    onSave: (content: string) => Promise<boolean>;
+    onSave: (content: string) => void;
     active: boolean;
 };
 
@@ -12,7 +15,12 @@ export function Tiptap(props: Props) {
 
     const editor = createTiptapEditor(() => ({
         element: ref!,
-        extensions: [],
+        content: props.content,
+        extensions: [
+            Document,
+            Paragraph,
+            Text,
+        ],
         editorProps: {
             attributes: {
                 class: "size-full focus:outline-none text-sm",
@@ -40,7 +48,7 @@ export function Tiptap(props: Props) {
 
     return (
         <div
-            class="relative size-full px-6 py-2"
+            class="size-full px-6 py-2"
             classList={{
                 block: props.active,
                 hidden: !props.active,
@@ -48,7 +56,7 @@ export function Tiptap(props: Props) {
         >
             <div
                 id="editor"
-                class="h-full w-full overflow-auto"
+                class="size-full overflow-auto"
                 ref={ref}
             ></div>
         </div>
