@@ -3,8 +3,8 @@ import { FileList } from "./FileList";
 import { Icon } from "./Icon";
 import { RecentFileList } from "./RecentFileList";
 import { NoFile } from "./NoFile";
-import { createSignal, Match, onMount, Show, Switch } from "solid-js";
-import { getFolderContent, OpenFile, readFolder, RecursiveDirEntry } from "../functions";
+import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
+import { getFileName, getFolderContent, OpenFile, readFolder, RecursiveDirEntry } from "../functions";
 import toast from "solid-toast";
 import { Tiptap } from "./tiptap/Tiptap";
 
@@ -36,9 +36,18 @@ export function Layout() {
     >();
     const [recentFiles, setRecentFiles] = createSignal<RecursiveDirEntry[]>([]);
     const [currentFile, setCurrentFile] = createSignal<OpenFile | undefined>();
+    const [opendFiles, setOpendFiles] = createSignal<OpenFile[]>([]);
 
     const handleFileClick = (filePath: string) => {
-        console.log(filePath);
+        if (currentFile()?.path === filePath) {
+            return;
+        }
+
+        // 检查是否有打开的文件，有就打开
+        if (!opendFiles().find((item) => item.path === filePath)) {
+            setOpendFiles((prev) => [...prev, { path: filePath, name: getFileName(filePath) }]);
+        }
+        setCurrentFile({ path: filePath, name: getFileName(filePath) });
     };
 
     const handleOpenFolder = () => {
@@ -116,44 +125,41 @@ export function Layout() {
                         <FileList
                             files={selectedFolder()!.children || []}
                             onFileClick={handleFileClick}
+                            currentFilePath={currentFile()?.path}
                         />
                     </div>
                 </Show>
             </aside>
             <main class="flex-1 min-w-54">
-                {/* <Switch>
+                <Switch>
                     <Match when={!currentFile()}>
                         <RecentFileList
                             recentFiles={recentFiles()}
                             onOpenFileOrFolder={handleOpenFileOrFolder}
                         />
-                    </Match> */}
-                    {/* <Match when={currentFile()}> */}
+                    </Match>
+                    <Match when={currentFile()}>
                         <div class="size-full flex flex-col">
                             <div role="tablist" class="tabs tabs-box tabs-sm shadow rounded-none flex-nowrap overflow-x-auto shrink-0">
-                                <a role="tab" class="tab tab-active relative max-w-30 pr-8">
-                                    <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
-                                    <span class="truncate">Tab 1 Tab 1 Tab 1 Tab 1 Tab 1</span>
-                                </a>
-                                <a role="tab" class="tab relative max-w-30 pr-8">
-                                    <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
-                                    <span class="truncate">Tab 1 Tab 1 Tab 1 Tab 1 Tab 1</span>
-                                </a>
-                                <a role="tab" class="tab relative max-w-30 pr-8">
-                                    <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
-                                    <span class="truncate">Tab 1 Tab 1 Tab 1 Tab 1 Tab 1</span>
-                                </a>
-                                <a role="tab" class="tab relative max-w-30 pr-8">
-                                    <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
-                                    <span class="truncate">Tab 1 Tab 1 Tab 1 Tab 1 Tab 1</span>
-                                </a>
+                                <For each={opendFiles()}>
+                                    {(item) => {
+                                        return (
+                                            <a role="tab" class="tab relative max-w-30 pr-8" title={item.path} classList={{
+                                                "tab-active": currentFile()?.path == item.path
+                                            }}>
+                                                <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
+                                                <span class="truncate">{item.name}</span>
+                                            </a>
+                                        )
+                                    }}
+                                </For>
                             </div>
                             <div class="flex-1 min-h-0">
                                 <Tiptap content={"## fdsafdsaf"} onSave={() => {}} active={true} />
                             </div>
                         </div>
-                    {/* </Match>
-                </Switch> */}
+                    </Match>
+                </Switch>
             </main>
         </div>
     );

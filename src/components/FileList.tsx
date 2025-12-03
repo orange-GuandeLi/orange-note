@@ -6,6 +6,7 @@ import { File, Folder } from "lucide-solid";
 type Props = {
     files: RecursiveDirEntry[];
     onFileClick: (filePath: string) => void;
+    currentFilePath?: string;
 };
 
 export function FileList(props: Props) {
@@ -19,7 +20,7 @@ export function FileList(props: Props) {
                                 <button
                                     classList={
                                         {
-                                            // "bg-primary text-primary-content": item.path === props.currentFile()?.path
+                                            "menu-active": item.path === props.currentFilePath
                                         }
                                     }
                                     class="w-full menu"

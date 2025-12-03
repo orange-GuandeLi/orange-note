@@ -3,9 +3,9 @@ import { DirEntry, readDir, readTextFile } from "@tauri-apps/plugin-fs";
 
 export type OpenFile = {
     path: string;
-    name: string;
-    content: string;
-    draft: string;
+    name?: string;
+    content?: string;
+    draft?: string;
 };
 
 export type RecursiveDirEntry = DirEntry & {
@@ -46,7 +46,7 @@ export async function getFileContent(filePath: string) {
         // 返回文件真实内容
         return {
             path: filePath,
-            name: filePath.split("/").pop() || "",
+            name: getFileName(filePath),
             content,
         };
     } catch (e2) {
@@ -65,7 +65,7 @@ export async function getFolderContent(folderPath: string) {
             isDirectory: true,
             isFile: false,
             isSymlink: false,
-            name: folderPath.split("/").pop() || "",
+            name: getFileName(folderPath),
             path: folderPath,
             children: files,
         };
@@ -96,7 +96,7 @@ async function readDirRecursively(
         const flatArray = recursiveFiles.flat();
         return flatArray
             .filter((item) => {
-                const extension = item.name.split(".").pop();
+                const extension = getFileExtension(item.name);
                 return (
                     extension === "md" ||
                     extension === "markdown" ||
@@ -116,4 +116,12 @@ async function readDirRecursively(
         console.error(`Failed to read ${folderPath} as a directory`, e2);
         throw e2;
     }
+}
+
+export function getFileName(filePath: string) {
+    return filePath.split("/").pop() || "";
+}
+
+export function getFileExtension(filePath: string) {
+    return filePath.split(".").pop() || "";
 }
