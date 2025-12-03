@@ -18,11 +18,10 @@ export function FileList(props: Props) {
                         return (
                             <li title={item.path}>
                                 <button
-                                    classList={
-                                        {
-                                            "menu-active": item.path === props.currentFilePath
-                                        }
-                                    }
+                                    classList={{
+                                        "menu-active":
+                                            item.path === props.currentFilePath,
+                                    }}
                                     class="w-full menu"
                                     onclick={() => props.onFileClick(item.path)}
                                 >

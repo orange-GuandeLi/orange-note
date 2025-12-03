@@ -3,9 +3,9 @@ import { DirEntry, readDir, readTextFile } from "@tauri-apps/plugin-fs";
 
 export type OpenFile = {
     path: string;
-    name?: string;
-    content?: string;
-    draft?: string;
+    name: string;
+    content: string;
+    draft: string;
 };
 
 export type RecursiveDirEntry = DirEntry & {

@@ -4,7 +4,13 @@ import { Icon } from "./Icon";
 import { RecentFileList } from "./RecentFileList";
 import { NoFile } from "./NoFile";
 import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
-import { getFileName, getFolderContent, OpenFile, readFolder, RecursiveDirEntry } from "../functions";
+import {
+    getFileContent,
+    getFolderContent,
+    OpenFile,
+    readFolder,
+    RecursiveDirEntry,
+} from "../functions";
 import toast from "solid-toast";
 import { Tiptap } from "./tiptap/Tiptap";
 
@@ -23,7 +29,7 @@ export function Layout() {
 
         try {
             const recentFilesJSON = JSON.parse(
-                localStorage.getItem("recentFolders") || "[]"
+                localStorage.getItem("recentFolders") || "[]",
             ) as RecursiveDirEntry[];
             setRecentFiles(recentFilesJSON);
         } catch {
@@ -43,11 +49,34 @@ export function Layout() {
             return;
         }
 
-        // 检查是否有打开的文件，有就打开
-        if (!opendFiles().find((item) => item.path === filePath)) {
-            setOpendFiles((prev) => [...prev, { path: filePath, name: getFileName(filePath) }]);
+        // 读取文件更新content
+        try {
+            getFileContent(filePath).then((file) => {
+                if (!opendFiles().find((item) => item.path === filePath)) {
+                    setOpendFiles((prev) => [
+                        ...prev,
+                        {
+                            ...file,
+                            draft: file.content,
+                        },
+                    ]);
+                } else {
+                    setOpendFiles((prev) =>
+                        prev.map((item) =>
+                            item.path === filePath
+                                ? {
+                                      ...item,
+                                      content: file.content,
+                                  }
+                                : item,
+                        ),
+                    );
+                }
+                setCurrentFile(opendFiles().find((item) => item.path === filePath));
+            });
+        } catch {
+            toast.error("Failed to read file");
         }
-        setCurrentFile({ path: filePath, name: getFileName(filePath) });
     };
 
     const handleOpenFolder = () => {
@@ -68,15 +97,15 @@ export function Layout() {
         localStorage.setItem("selectedFolder", folder.path);
         try {
             const recentFolders = JSON.parse(
-                localStorage.getItem("recentFolders") || "[]"
+                localStorage.getItem("recentFolders") || "[]",
             ) as RecursiveDirEntry[];
             // Remove duplicates
             const uniqueFolders = recentFolders.filter(
-                (f) => f.path !== folder.path
+                (f) => f.path !== folder.path,
             );
             localStorage.setItem(
                 "recentFolders",
-                JSON.stringify([folder, ...uniqueFolders])
+                JSON.stringify([folder, ...uniqueFolders]),
             );
         } catch {
             toast.error("Failed to update recent folders");
@@ -95,12 +124,24 @@ export function Layout() {
         }
     };
 
+    const handleCloseFile = (filePath: string) => {
+        setOpendFiles((prev) => prev.filter((item) => item.path !== filePath));
+
+        if (currentFile()?.path === filePath) {
+            setCurrentFile(opendFiles().find((item) => item.path !== filePath));
+        }
+    };
+
     return (
         <div class="size-full flex">
             <aside class="w-54 min-w-54 resize-x overflow-x-auto shadow flex flex-col">
                 <Show
                     when={selectedFolder()}
-                    fallback={<div class="p-4"><NoFile onOpenFolder={handleOpenFolder} /></div>}
+                    fallback={
+                        <div class="p-4">
+                            <NoFile onOpenFolder={handleOpenFolder} />
+                        </div>
+                    }
                 >
                     <div class="h-10 shadow shrink-0 flex items-center p-2 text-sm justify-between">
                         <span
@@ -132,30 +173,69 @@ export function Layout() {
             </aside>
             <main class="flex-1 min-w-54">
                 <Switch>
-                    <Match when={!currentFile()}>
+                    <Match when={!opendFiles().length}>
                         <RecentFileList
                             recentFiles={recentFiles()}
                             onOpenFileOrFolder={handleOpenFileOrFolder}
                         />
                     </Match>
-                    <Match when={currentFile()}>
+                    <Match when={opendFiles().length}>
                         <div class="size-full flex flex-col">
-                            <div role="tablist" class="tabs tabs-box tabs-sm shadow rounded-none flex-nowrap overflow-x-auto shrink-0">
+                            <div
+                                role="tablist"
+                                class="tabs tabs-box tabs-sm shadow rounded-none flex-nowrap overflow-x-auto shrink-0"
+                            >
                                 <For each={opendFiles()}>
                                     {(item) => {
                                         return (
-                                            <a role="tab" class="tab relative max-w-30 pr-8" title={item.path} classList={{
-                                                "tab-active": currentFile()?.path == item.path
-                                            }}>
-                                                <button class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"><Icon icon={X} size="small" /></button>
-                                                <span class="truncate">{item.name}</span>
+                                            <a
+                                                role="tab"
+                                                class="tab relative max-w-30 pr-8"
+                                                title={item.path}
+                                                classList={{
+                                                    "tab-active":
+                                                        currentFile()?.path ==
+                                                        item.path,
+                                                }}
+                                                onclick={() =>
+                                                    handleFileClick(item.path)
+                                                }
+                                            >
+                                                <button
+                                                    class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"
+                                                    onclick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleCloseFile(item.path);
+                                                    }}
+                                                >
+                                                    <Icon
+                                                        icon={X}
+                                                        size="small"
+                                                    />
+                                                </button>
+                                                <span class="truncate">
+                                                    {item.name}
+                                                </span>
                                             </a>
-                                        )
+                                        );
                                     }}
                                 </For>
                             </div>
                             <div class="flex-1 min-h-0">
-                                <Tiptap content={"## fdsafdsaf"} onSave={() => {}} active={true} />
+                                <For each={opendFiles()}>
+                                    {(item) => {
+                                        return (
+                                            <Tiptap
+                                                content={item.draft || ""}
+                                                onSave={() => {}}
+                                                active={
+                                                    currentFile()?.path ==
+                                                    item.path
+                                                }
+                                            />
+                                        );
+                                    }}
+                                </For>
                             </div>
                         </div>
                     </Match>
