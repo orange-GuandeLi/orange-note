@@ -1,7 +1,7 @@
 import { For } from "solid-js";
 import { RecursiveDirEntry } from "../functions";
 import { Icon } from "./Icon";
-import { FileBraces, Folder } from "lucide-solid";
+import { File, Folder } from "lucide-solid";
 
 type Props = {
     files: RecursiveDirEntry[];
@@ -25,7 +25,7 @@ export function FileList(props: Props) {
                                     class="max-w-full"
                                     onclick={() => props.onFileClick(item.path)}
                                 >
-                                    <Icon icon={FileBraces} />{" "}
+                                    <Icon icon={File} />{" "}
                                     <span class="truncate">{item.name}</span>
                                 </button>
                             </li>

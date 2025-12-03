@@ -1,8 +1,7 @@
-import { File, Folder } from "lucide-solid";
+import { Folder } from "lucide-solid";
 import { Icon } from "./Icon";
 
 type Props = {
-    onOpenFile: () => void;
     onOpenFolder: () => void;
 };
 
@@ -10,11 +9,8 @@ export function NoFile(props: Props) {
     return (
         <div class="flex flex-col justify-center gap-4">
             <p class="text-center">
-                You have not selected any files or folders yet.
+                You have not selected any folder yet.
             </p>
-            <button class="btn btn-primary btn-dash" onclick={props.onOpenFile}>
-                <Icon icon={File} /> Open File
-            </button>
             <button
                 class="btn btn-primary btn-dash"
                 onclick={props.onOpenFolder}
