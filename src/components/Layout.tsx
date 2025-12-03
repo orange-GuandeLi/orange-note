@@ -7,14 +7,14 @@ export function Layout() {
                 <FileList
                     files={[
                         {
-                            name: "test",
+                            name: "testtesttesttesttesttesttesttesttesttest",
                             isDirectory: true,
                             isFile: false,
                             isSymlink: false,
                             path: "test",
                             children: [
                                 {
-                                    name: "test.md",
+                                    name: "testtesttesttesttesttesttesttesttesttest.md",
                                     isDirectory: false,
                                     isFile: true,
                                     isSymlink: false,
@@ -37,32 +37,32 @@ export function Layout() {
                                         },
                                     ]
                                 },
-                            ],
-                        },
-                        // 补数据
-                        {
-                            name: "test2",
-                            isDirectory: true,
-                            isFile: false,
-                            isSymlink: false,
-                            path: "test2",
-                            children: [
+                                // 补数据
                                 {
-                                    name: "test2.md",
+                                    name: "test2",
+                                    isDirectory: true,
+                                    isFile: false,
+                                    isSymlink: false,
+                                    path: "test2",
+                                    children: [
+                                        {
+                                            name: "test2.md",
+                                            isDirectory: false,
+                                            isFile: true,
+                                            isSymlink: false,
+                                            path: "test2.md",
+                                        },
+                                    ],
+                                },
+                                // 来个文件
+                                {
+                                    name: "test3.md",
                                     isDirectory: false,
                                     isFile: true,
                                     isSymlink: false,
-                                    path: "test2.md",
+                                    path: "test3.md",
                                 },
                             ],
-                        },
-                        // 来个文件
-                        {
-                            name: "test3.md",
-                            isDirectory: false,
-                            isFile: true,
-                            isSymlink: false,
-                            path: "test3.md",
                         },
                     ]}
                     onFileClick={() => {}}
