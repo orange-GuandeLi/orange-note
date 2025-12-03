@@ -25,7 +25,8 @@ export function FileList(props: Props) {
                                     class="max-w-full"
                                     onclick={() => props.onFileClick(item.path)}
                                 >
-                                    <Icon icon={FileBraces} /> <span class="truncate">{item.name}</span>
+                                    <Icon icon={FileBraces} />{" "}
+                                    <span class="truncate">{item.name}</span>
                                 </button>
                             </li>
                         );
@@ -34,8 +35,10 @@ export function FileList(props: Props) {
                             <li title={item.path}>
                                 <details class="max-w-full">
                                     <summary>
-                                        <Icon icon={Folder}/>
-                                        <span class="truncate">{item.name}</span>
+                                        <Icon icon={Folder} />
+                                        <span class="truncate">
+                                            {item.name}
+                                        </span>
                                     </summary>
                                     {item.children ? (
                                         <FileList
