@@ -1,5 +1,5 @@
 import { createTiptapEditor } from "solid-tiptap";
-import { onCleanup, onMount } from "solid-js";
+import { createEffect, onCleanup, onMount } from "solid-js";
 import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -15,11 +15,11 @@ type Props = {
 };
 
 export function Tiptap(props: Props) {
-    let ref: HTMLDivElement | undefined;
+    let editorRef: HTMLDivElement | undefined;
     let dirtyTimeoutId: number | undefined;
 
     const editor = createTiptapEditor(() => ({
-        element: ref!,
+        element: editorRef!,
         content: props.content,
         contentType: "markdown",
         extensions: [
@@ -49,6 +49,14 @@ export function Tiptap(props: Props) {
         },
     }));
 
+    createEffect(() => {
+        if (props.active) {
+            setTimeout(() => {
+                editor()?.commands.focus();
+            }, 0);
+        }
+    });
+
     const handleKeyDown = async (e: KeyboardEvent) => {
         if ((e.metaKey || e.ctrlKey) && e.key === "s") {
             e.preventDefault();
@@ -59,11 +67,11 @@ export function Tiptap(props: Props) {
     const handleSave = async () => {};
 
     onMount(() => {
-        ref?.addEventListener("keydown", handleKeyDown);
+        editorRef?.addEventListener("keydown", handleKeyDown);
     });
 
     onCleanup(() => {
-        ref?.removeEventListener("keydown", handleKeyDown);
+        editorRef?.removeEventListener("keydown", handleKeyDown);
         editor()?.destroy();
     });
 
@@ -75,7 +83,7 @@ export function Tiptap(props: Props) {
                 hidden: !props.active,
             }}
         >
-            <div id="editor" class="size-full overflow-auto" ref={ref}></div>
+            <div id="editor" class="size-full overflow-auto" ref={editorRef}></div>
         </div>
     );
 }
