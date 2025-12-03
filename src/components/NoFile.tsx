@@ -8,9 +8,7 @@ type Props = {
 export function NoFile(props: Props) {
     return (
         <div class="flex flex-col justify-center gap-4">
-            <p class="text-center">
-                You have not selected any folder yet.
-            </p>
+            <p class="text-center">You have not selected any folder yet.</p>
             <button
                 class="btn btn-primary btn-dash"
                 onclick={props.onOpenFolder}

@@ -22,7 +22,7 @@ export function FileList(props: Props) {
                                             // "bg-primary text-primary-content": item.path === props.currentFile()?.path
                                         }
                                     }
-                                    class="max-w-full"
+                                    class="max-w-full menu"
                                     onclick={() => props.onFileClick(item.path)}
                                 >
                                     <Icon icon={File} />{" "}

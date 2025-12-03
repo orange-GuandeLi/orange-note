@@ -1,6 +1,5 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { DirEntry, readDir, readTextFile } from "@tauri-apps/plugin-fs";
-import toast from "solid-toast";
 
 export type OpenFile = {
     path: string;
@@ -50,8 +49,8 @@ export async function getFileContent(filePath: string) {
             content,
         };
     } catch (e2) {
-        toast.error(`Failed to read ${filePath} as a file`);
         console.error(`Failed to read ${filePath} as a file`, e2);
+        throw e2;
     }
 }
 
@@ -61,10 +60,17 @@ export async function getFolderContent(folderPath: string) {
         if (!files) {
             return;
         }
-        return files;
+        return {
+            isDirectory: true,
+            isFile: false,
+            isSymlink: false,
+            name: folderPath.split("/").pop() || "",
+            path: folderPath,
+            children: files,
+        };
     } catch (e2) {
-        toast.error(`Failed to read ${folderPath} as a directory`);
         console.error(`Failed to read ${folderPath} as a directory`, e2);
+        throw e2;
     }
 }
 
@@ -106,7 +112,7 @@ async function readDirRecursively(
                 return 0;
             });
     } catch (e2) {
-        toast.error(`Failed to read ${folderPath} as a directory`);
         console.error(`Failed to read ${folderPath} as a directory`, e2);
+        throw e2;
     }
 }
