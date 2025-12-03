@@ -6,6 +6,7 @@ export type OpenFile = {
     name: string;
     content: string;
     draft: string;
+    isOpend: boolean;
 };
 
 export type RecursiveDirEntry = DirEntry & {

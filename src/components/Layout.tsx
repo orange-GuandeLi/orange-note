@@ -19,21 +19,36 @@ export function Layout() {
         const selectedFolder = localStorage.getItem("selectedFolder");
         if (selectedFolder) {
             try {
+                // open folder
                 getFolderContent(selectedFolder).then((folder) => {
-                    setFolder(folder);
+                    setFolderData(folder);
                 });
-            } catch {
-                toast.error("Failed to read folder");
-            }
-        }
 
-        try {
-            const recentFilesJSON = JSON.parse(
-                localStorage.getItem("recentFolders") || "[]",
-            ) as RecursiveDirEntry[];
-            setRecentFiles(recentFilesJSON);
-        } catch {
-            toast.error("Failed to read recent files");
+                // set recent files
+                const recentFilesJSON = JSON.parse(
+                    localStorage.getItem("recentFolders") || "[]",
+                ) as RecursiveDirEntry[];
+                setRecentFiles(recentFilesJSON);
+
+                // set opend files order
+                const opendFilesOrderJSON = JSON.parse(
+                    localStorage.getItem("opendFilesOrder") || "[]",
+                ) as string[];
+                setOpendFilesOrderData(opendFilesOrderJSON);
+
+                // set opend files
+                const opendFilesJSON = JSON.parse(
+                    localStorage.getItem("opendFiles") || "[]",
+                ) as OpenFile[];
+                setOpendFilesData(opendFilesJSON);
+
+                // set current file
+                if (opendFilesOrderJSON.length > 0) {
+                    handleFileClick(opendFilesOrderJSON[opendFilesOrderJSON.length - 1]);
+                }
+            } catch {
+                toast.error("Faild to read folder or recent files or opend files order");
+            }
         }
     });
 
@@ -43,34 +58,53 @@ export function Layout() {
     const [recentFiles, setRecentFiles] = createSignal<RecursiveDirEntry[]>([]);
     const [currentFile, setCurrentFile] = createSignal<OpenFile | undefined>();
     const [opendFiles, setOpendFiles] = createSignal<OpenFile[]>([]);
+    let opendFilesOrder: string[] = [];
+
+    const setOpendFilesOrderData = (order: string[]) => {
+        opendFilesOrder = order;
+        localStorage.setItem("opendFilesOrder", JSON.stringify(opendFilesOrder));
+    };
+
+    const setOpendFilesData = (files: OpenFile[]) => {
+        setOpendFiles(files);
+        localStorage.setItem("opendFiles", JSON.stringify(files.map((item) => ({
+            ...item,
+            draft: "",
+            content: "",
+            isOpend: false,
+        }))));
+    };
 
     const handleFileClick = (filePath: string) => {
         if (currentFile()?.path === filePath) {
             return;
         }
 
+        // 记录一个文件打开顺序栈
+        setOpendFilesOrderData([...opendFilesOrder, filePath]);
+
         // 读取文件更新content
         try {
             getFileContent(filePath).then((file) => {
                 if (!opendFiles().find((item) => item.path === filePath)) {
-                    setOpendFiles((prev) => [
-                        ...prev,
+                    setOpendFilesData([
+                        ...opendFiles(),
                         {
                             ...file,
                             draft: file.content,
+                            isOpend: true,
                         },
                     ]);
                 } else {
-                    setOpendFiles((prev) =>
-                        prev.map((item) =>
-                            item.path === filePath
-                                ? {
-                                      ...item,
-                                      content: file.content,
-                                  }
-                                : item,
-                        ),
-                    );
+                    setOpendFilesData(opendFiles().map((item) =>
+                        item.path === filePath
+                            ? {
+                                ...item,
+                                content: file.content,
+                                draft: item.isOpend ? item.draft : file.content,
+                              }
+                            : item,
+                    ));
                 }
                 setCurrentFile(opendFiles().find((item) => item.path === filePath));
             });
@@ -82,14 +116,14 @@ export function Layout() {
     const handleOpenFolder = () => {
         try {
             readFolder().then((folder) => {
-                setFolder(folder);
+                setFolderData(folder);
             });
         } catch {
             toast.error("Failed to read folder");
         }
     };
 
-    const setFolder = (folder: RecursiveDirEntry | undefined) => {
+    const setFolderData = (folder: RecursiveDirEntry | undefined) => {
         if (!folder) {
             return;
         }
@@ -116,7 +150,7 @@ export function Layout() {
         if (file.isDirectory) {
             try {
                 getFolderContent(file.path).then((folder) => {
-                    setFolder(folder);
+                    setFolderData(folder);
                 });
             } catch {
                 toast.error("Failed to read folder");
@@ -125,10 +159,20 @@ export function Layout() {
     };
 
     const handleCloseFile = (filePath: string) => {
-        setOpendFiles((prev) => prev.filter((item) => item.path !== filePath));
+        setOpendFilesData(opendFiles().filter((item) => item.path !== filePath));
 
+        // 记录一个文件关闭顺序栈
+        setOpendFilesOrderData(opendFilesOrder.filter((item) => item !== filePath));
+        // 关闭文件后，设置当前文件为最近打开的文件，
+        // 如果最近打开的文件被关闭了，就找倒数第二个最近打开的文件
         if (currentFile()?.path === filePath) {
-            setCurrentFile(opendFiles().find((item) => item.path !== filePath));
+            setCurrentFile(
+                opendFiles().find(
+                    (item) =>
+                        item.path === opendFilesOrder[opendFilesOrder.length - 1] ||
+                        item.path === opendFilesOrder[opendFilesOrder.length - 2],
+                ),
+            );
         }
     };
 
