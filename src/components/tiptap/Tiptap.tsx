@@ -5,7 +5,8 @@ import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
 import { Markdown } from "@tiptap/markdown";
 import Heading from "@tiptap/extension-heading";
-import { TaskList, TaskItem } from '@tiptap/extension-list'
+import { TaskList, TaskItem } from '@tiptap/extension-list';
+import History from "@tiptap/extension-history";
 
 type Props = {
     content: string;
@@ -17,6 +18,7 @@ type Props = {
 export function Tiptap(props: Props) {
     let editorRef: HTMLDivElement | undefined;
     let dirtyTimeoutId: number | undefined;
+    let cursorPosition: number | undefined;
 
     const editor = createTiptapEditor(() => ({
         element: editorRef!,
@@ -30,6 +32,7 @@ export function Tiptap(props: Props) {
             Heading,
             TaskList,
             TaskItem,
+            History,
         ],
         editorProps: {
             attributes: {
@@ -47,10 +50,23 @@ export function Tiptap(props: Props) {
                 props.onFileDirty(JSON.stringify(draft) != JSON.stringify(orignalContent));
             }, 500);
         },
+        onBlur: ({ editor }) => {
+            // 存储光标位置
+            const selection = editor.state.selection;
+            if (selection) {
+                cursorPosition = selection.$anchor.pos;
+            }
+        },
+        onFocus: ({ editor }) => {
+            // 恢复光标位置
+            if (cursorPosition) {
+                editor?.commands.setTextSelection(cursorPosition);
+            }
+        },
     }));
 
     createEffect(() => {
-        if (props.active) {
+        if (props.active && cursorPosition) {
             setTimeout(() => {
                 editor()?.commands.focus();
             }, 0);
