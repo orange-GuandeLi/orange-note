@@ -3,8 +3,8 @@ import { FileList } from "./FileList";
 import { Icon } from "./Icon";
 import { RecentFileList } from "./RecentFileList";
 import { NoFile } from "./NoFile";
-import { createSignal, onMount, Show } from "solid-js";
-import { getFolderContent, readFolder, RecursiveDirEntry } from "../functions";
+import { createSignal, Match, onMount, Show, Switch } from "solid-js";
+import { getFolderContent, OpenFile, readFolder, RecursiveDirEntry } from "../functions";
 import toast from "solid-toast";
 
 export function Layout() {
@@ -34,6 +34,11 @@ export function Layout() {
         RecursiveDirEntry | undefined
     >();
     const [recentFiles, setRecentFiles] = createSignal<RecursiveDirEntry[]>([]);
+    const [currentFile, setCurrentFile] = createSignal<OpenFile | undefined>();
+
+    const handleFileClick = (filePath: string) => {
+        console.log(filePath);
+    };
 
     const handleOpenFolder = () => {
         try {
@@ -109,16 +114,23 @@ export function Layout() {
                     <div class="menu flex-1 min-h-0 overflow-y-auto w-full">
                         <FileList
                             files={selectedFolder()!.children || []}
-                            onFileClick={() => {}}
+                            onFileClick={handleFileClick}
                         />
                     </div>
                 </Show>
             </aside>
             <main class="flex-1 min-w-54">
-                <RecentFileList
-                    recentFiles={recentFiles()}
-                    onOpenFileOrFolder={handleOpenFileOrFolder}
-                />
+                <Switch>
+                    <Match when={!currentFile()}>
+                        <RecentFileList
+                            recentFiles={recentFiles()}
+                            onOpenFileOrFolder={handleOpenFileOrFolder}
+                        />
+                    </Match>
+                    <Match when={currentFile()}>
+                        {currentFile()!.content}
+                    </Match>
+                </Switch>
             </main>
         </div>
     );
