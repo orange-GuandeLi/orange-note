@@ -58,6 +58,7 @@ export function Layout() {
     const [recentFiles, setRecentFiles] = createSignal<RecursiveDirEntry[]>([]);
     const [currentFile, setCurrentFile] = createSignal<OpenFile | undefined>();
     const [opendFiles, setOpendFiles] = createSignal<OpenFile[]>([]);
+    const [dirtyFiles, setDirtyFiles] = createSignal<string[]>([]);
     let opendFilesOrder: string[] = [];
 
     const setOpendFilesOrderData = (order: string[]) => {
@@ -69,9 +70,7 @@ export function Layout() {
         setOpendFiles(files);
         localStorage.setItem("opendFiles", JSON.stringify(files.map((item) => ({
             ...item,
-            draft: "",
             content: "",
-            isOpend: false,
         }))));
     };
 
@@ -89,11 +88,7 @@ export function Layout() {
                 if (!opendFiles().find((item) => item.path === filePath)) {
                     setOpendFilesData([
                         ...opendFiles(),
-                        {
-                            ...file,
-                            draft: file.content,
-                            isOpend: true,
-                        },
+                        file,
                     ]);
                 } else {
                     setOpendFilesData(opendFiles().map((item) =>
@@ -101,7 +96,6 @@ export function Layout() {
                             ? {
                                 ...item,
                                 content: file.content,
-                                draft: item.isOpend ? item.draft : file.content,
                               }
                             : item,
                     ));
@@ -173,6 +167,15 @@ export function Layout() {
                         item.path === opendFilesOrder[opendFilesOrder.length - 2],
                 ),
             );
+        }
+    };
+
+    const handleSetFileDirty = (filePath: string, isDirty: boolean) => {
+        console.log(isDirty);
+        if (isDirty) {
+            setDirtyFiles((prev) => [...prev, filePath]);
+        } else {
+            setDirtyFiles((prev) => prev.filter((item) => item !== filePath));
         }
     };
 
@@ -257,6 +260,14 @@ export function Layout() {
                                                         size="small"
                                                     />
                                                 </button>
+
+                                                {
+                                                    dirtyFiles().includes(item.path) &&(
+                                                        <span class="absolute right-2 top-1 text-xs text-red-500">
+                                                            *
+                                                        </span>
+                                                    )
+                                                }
                                                 <span class="truncate">
                                                     {item.name}
                                                 </span>
@@ -270,7 +281,8 @@ export function Layout() {
                                     {(item) => {
                                         return (
                                             <Tiptap
-                                                content={item.draft || ""}
+                                                content={item.content}
+                                                onFileDirty={(isDirty) => handleSetFileDirty(item.path, isDirty)}
                                                 onSave={() => {}}
                                                 active={
                                                     currentFile()?.path ==

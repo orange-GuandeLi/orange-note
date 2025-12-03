@@ -7,11 +7,13 @@ import Paragraph from "@tiptap/extension-paragraph";
 type Props = {
     content: string;
     onSave: (content: string) => void;
+    onFileDirty: (isDirty: boolean) => void;
     active: boolean;
 };
 
 export function Tiptap(props: Props) {
     let ref: HTMLDivElement | undefined;
+    let dirtyTimeoutId: number | undefined;
 
     const editor = createTiptapEditor(() => ({
         element: ref!,
@@ -21,6 +23,17 @@ export function Tiptap(props: Props) {
             attributes: {
                 class: "size-full focus:outline-none text-sm",
             },
+        },
+        onUpdate: ({ editor }) => {
+            if (dirtyTimeoutId) {
+                clearTimeout(dirtyTimeoutId);
+            }
+
+            dirtyTimeoutId = setTimeout(() => {
+                const draft = editor.getText();
+                console.log(draft, props.content);
+                props.onFileDirty(draft !== props.content);
+            }, 500);
         },
     }));
 
