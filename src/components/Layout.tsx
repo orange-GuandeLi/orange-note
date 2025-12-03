@@ -3,7 +3,8 @@ import { FileList } from "./FileList";
 import { Icon } from "./Icon";
 import { RecentFileList } from "./RecentFileList";
 import { NoFile } from "./NoFile";
-import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
+import { createSignal, For, Match, onMount, Show, Switch, createEffect } from "solid-js";
+import { createStore } from "solid-js/store";
 import {
     getFileContent,
     getFolderContent,
@@ -21,7 +22,7 @@ export function Layout() {
             try {
                 // open folder
                 getFolderContent(selectedFolder).then((folder) => {
-                    setFolderData(folder);
+                    setSelectedFolder(folder);
                 });
 
                 // set recent files
@@ -40,7 +41,7 @@ export function Layout() {
                 const opendFilesJSON = JSON.parse(
                     localStorage.getItem("opendFiles") || "[]",
                 ) as OpenFile[];
-                setOpendFilesData(opendFilesJSON);
+                setOpendFiles(opendFilesJSON);
 
                 // set current file
                 if (opendFilesOrderJSON.length > 0) {
@@ -57,21 +58,45 @@ export function Layout() {
     >();
     const [recentFiles, setRecentFiles] = createSignal<RecursiveDirEntry[]>([]);
     const [currentFile, setCurrentFile] = createSignal<OpenFile | undefined>();
-    const [opendFiles, setOpendFiles] = createSignal<OpenFile[]>([]);
+    const [opendFiles, setOpendFiles] = createStore<OpenFile[]>([]);
     const [dirtyFiles, setDirtyFiles] = createSignal<string[]>([]);
     let opendFilesOrder: string[] = [];
+
+    createEffect(() => {
+        localStorage.setItem("opendFiles", JSON.stringify(opendFiles.map((item) => ({
+            ...item,
+            content: "",
+        }))));
+    });
+
+    createEffect(() => {
+        const folder = selectedFolder();
+        if (!folder) {
+            return;
+        }
+        localStorage.setItem("selectedFolder", folder.path);
+        try {
+            const recentFolders = JSON.parse(
+                localStorage.getItem("recentFolders") || "[]",
+            ) as RecursiveDirEntry[];
+            // Remove duplicates
+            const uniqueFolders = recentFolders.filter(
+                (f) => f.path !== folder.path,
+            );
+            const newRecentFolders = [folder, ...uniqueFolders];
+            localStorage.setItem(
+                "recentFolders",
+                JSON.stringify(newRecentFolders),
+            );
+            setRecentFiles(newRecentFolders);
+        } catch {
+            toast.error("Failed to update recent folders");
+        }
+    });
 
     const setOpendFilesOrderData = (order: string[]) => {
         opendFilesOrder = order;
         localStorage.setItem("opendFilesOrder", JSON.stringify(opendFilesOrder));
-    };
-
-    const setOpendFilesData = (files: OpenFile[]) => {
-        setOpendFiles(files);
-        localStorage.setItem("opendFiles", JSON.stringify(files.map((item) => ({
-            ...item,
-            content: "",
-        }))));
     };
 
     const handleFileClick = (filePath: string) => {
@@ -85,22 +110,13 @@ export function Layout() {
         // 读取文件更新content
         try {
             getFileContent(filePath).then((file) => {
-                if (!opendFiles().find((item) => item.path === filePath)) {
-                    setOpendFilesData([
-                        ...opendFiles(),
-                        file,
-                    ]);
+                const fileIndex = opendFiles.findIndex((item) => item.path === filePath);
+                if (fileIndex === -1) {
+                    setOpendFiles([...opendFiles, file]);
                 } else {
-                    setOpendFilesData(opendFiles().map((item) =>
-                        item.path === filePath
-                            ? {
-                                ...item,
-                                content: file.content,
-                              }
-                            : item,
-                    ));
+                    setOpendFiles(fileIndex, "content", file.content);
                 }
-                setCurrentFile(opendFiles().find((item) => item.path === filePath));
+                setCurrentFile(opendFiles.find((item) => item.path === filePath));
             });
         } catch {
             toast.error("Failed to read file");
@@ -110,33 +126,10 @@ export function Layout() {
     const handleOpenFolder = () => {
         try {
             readFolder().then((folder) => {
-                setFolderData(folder);
+                setSelectedFolder(folder);
             });
         } catch {
             toast.error("Failed to read folder");
-        }
-    };
-
-    const setFolderData = (folder: RecursiveDirEntry | undefined) => {
-        if (!folder) {
-            return;
-        }
-        setSelectedFolder(folder);
-        localStorage.setItem("selectedFolder", folder.path);
-        try {
-            const recentFolders = JSON.parse(
-                localStorage.getItem("recentFolders") || "[]",
-            ) as RecursiveDirEntry[];
-            // Remove duplicates
-            const uniqueFolders = recentFolders.filter(
-                (f) => f.path !== folder.path,
-            );
-            localStorage.setItem(
-                "recentFolders",
-                JSON.stringify([folder, ...uniqueFolders]),
-            );
-        } catch {
-            toast.error("Failed to update recent folders");
         }
     };
 
@@ -144,7 +137,7 @@ export function Layout() {
         if (file.isDirectory) {
             try {
                 getFolderContent(file.path).then((folder) => {
-                    setFolderData(folder);
+                    setSelectedFolder(folder);
                 });
             } catch {
                 toast.error("Failed to read folder");
@@ -153,20 +146,24 @@ export function Layout() {
     };
 
     const handleCloseFile = (filePath: string) => {
-        setOpendFilesData(opendFiles().filter((item) => item.path !== filePath));
+        const newOpendFiles = opendFiles.filter((item) => item.path !== filePath);
+        setOpendFiles(newOpendFiles);
 
         // 记录一个文件关闭顺序栈
-        setOpendFilesOrderData(opendFilesOrder.filter((item) => item !== filePath));
+        const newOpendFilesOrder = opendFilesOrder.filter((item) => item !== filePath);
+        setOpendFilesOrderData(newOpendFilesOrder);
         // 关闭文件后，设置当前文件为最近打开的文件，
         // 如果最近打开的文件被关闭了，就找倒数第二个最近打开的文件
         if (currentFile()?.path === filePath) {
-            setCurrentFile(
-                opendFiles().find(
-                    (item) =>
-                        item.path === opendFilesOrder[opendFilesOrder.length - 1] ||
-                        item.path === opendFilesOrder[opendFilesOrder.length - 2],
-                ),
-            );
+            if (newOpendFilesOrder.length > 0) {
+                const lastFilePath = newOpendFilesOrder[newOpendFilesOrder.length - 1];
+                const newCurrentFile = newOpendFiles.find(
+                    (item) => item.path === lastFilePath,
+                );
+                setCurrentFile(newCurrentFile);
+            } else {
+                setCurrentFile(undefined);
+            }
         }
     };
 
@@ -220,19 +217,19 @@ export function Layout() {
             </aside>
             <main class="flex-1 min-w-54">
                 <Switch>
-                    <Match when={!opendFiles().length}>
+                    <Match when={!opendFiles.length}>
                         <RecentFileList
                             recentFiles={recentFiles()}
                             onOpenFileOrFolder={handleOpenFileOrFolder}
                         />
                     </Match>
-                    <Match when={opendFiles().length}>
+                    <Match when={opendFiles.length}>
                         <div class="size-full flex flex-col">
                             <div
                                 role="tablist"
                                 class="tabs tabs-box tabs-sm shadow rounded-none flex-nowrap overflow-x-auto shrink-0"
                             >
-                                <For each={opendFiles()}>
+                                <For each={opendFiles}>
                                     {(item) => {
                                         return (
                                             <a
@@ -277,7 +274,7 @@ export function Layout() {
                                 </For>
                             </div>
                             <div class="flex-1 min-h-0">
-                                <For each={opendFiles()}>
+                                <For each={opendFiles}>
                                     {(item) => {
                                         return (
                                             <Tiptap

@@ -3,6 +3,9 @@ import { onCleanup, onMount } from "solid-js";
 import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
+import { Markdown } from "@tiptap/markdown";
+import Heading from "@tiptap/extension-heading";
+import { TaskList, TaskItem } from '@tiptap/extension-list'
 
 type Props = {
     content: string;
@@ -18,7 +21,16 @@ export function Tiptap(props: Props) {
     const editor = createTiptapEditor(() => ({
         element: ref!,
         content: props.content,
-        extensions: [Document, Paragraph, Text],
+        contentType: "markdown",
+        extensions: [
+            Document,
+            Paragraph,
+            Text,
+            Markdown,
+            Heading,
+            TaskList,
+            TaskItem,
+        ],
         editorProps: {
             attributes: {
                 class: "size-full focus:outline-none text-sm",
@@ -30,9 +42,9 @@ export function Tiptap(props: Props) {
             }
 
             dirtyTimeoutId = setTimeout(() => {
-                const draft = editor.getText();
-                console.log(draft, props.content);
-                props.onFileDirty(draft !== props.content);
+                const orignalContent = editor.markdown?.parse(props.content);
+                const draft = editor.getJSON();
+                props.onFileDirty(JSON.stringify(draft) != JSON.stringify(orignalContent));
             }, 500);
         },
     }));

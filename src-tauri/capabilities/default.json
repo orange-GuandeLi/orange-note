@@ -23,6 +23,14 @@
                     "path": "$HOME/**/*.md"
                 }
             ]
+        },
+		{
+            "identifier": "fs:allow-read-dir",
+            "allow": [
+                {
+                    "path": "$HOME/**/*"
+                }
+            ]
         }
     ]
 }
