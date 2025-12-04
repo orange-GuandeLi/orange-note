@@ -260,7 +260,7 @@ export function Layout() {
 
                                                 {
                                                     dirtyFiles().includes(item.path) &&(
-                                                        <span class="absolute right-2 top-1 text-xs text-red-500">
+                                                        <span class="absolute right-1 -top-1 text-lg text-primary">
                                                             *
                                                         </span>
                                                     )

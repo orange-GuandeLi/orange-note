@@ -7,6 +7,7 @@ import { Markdown } from "@tiptap/markdown";
 import Heading from "@tiptap/extension-heading";
 import { TaskList, TaskItem } from '@tiptap/extension-list';
 import History from "@tiptap/extension-history";
+import "../../assets/tiptap.css";
 
 type Props = {
     content: string;
@@ -99,7 +100,7 @@ export function Tiptap(props: Props) {
                 hidden: !props.active,
             }}
         >
-            <div id="editor" class="size-full overflow-auto" ref={editorRef}></div>
+            <article id="editor" class="size-full overflow-auto prose" ref={editorRef}></article>
         </div>
     );
 }

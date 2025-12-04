@@ -1,6 +1,7 @@
 import { createSignal, Show } from "solid-js";
 import { HomeHero } from "./components/HomeHero";
 import { Layout } from "./components/Layout";
+import "./app.css";
 
 const STARTED_KEY = "started";
 
