@@ -21,6 +21,7 @@ export function Tiptap(props: Props) {
     let editorRef: HTMLDivElement | undefined;
     let dirtyTimeoutId: number | undefined;
     let cursorPosition: number | undefined;
+    let originalContent = props.content;
 
     const editor = createTiptapEditor(() => ({
         element: editorRef!,
@@ -47,7 +48,7 @@ export function Tiptap(props: Props) {
             }
 
             dirtyTimeoutId = setTimeout(() => {
-                const orignalContent = editor.markdown?.parse(props.content);
+                const orignalContent = editor.markdown?.parse(originalContent);
                 const draft = editor.getJSON();
                 props.onFileDirty(
                     JSON.stringify(draft) != JSON.stringify(orignalContent),
@@ -80,11 +81,11 @@ export function Tiptap(props: Props) {
     const handleKeyDown = async (e: KeyboardEvent) => {
         if ((e.metaKey || e.ctrlKey) && e.key === "s") {
             e.preventDefault();
-            await handleSave();
+            // 保存内容
+            originalContent = editor()?.getMarkdown() || "";
+            props.onSave(originalContent);
         }
     };
-
-    const handleSave = async () => {};
 
     onMount(() => {
         editorRef?.addEventListener("keydown", handleKeyDown);

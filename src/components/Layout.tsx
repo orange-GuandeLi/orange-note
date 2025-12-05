@@ -22,6 +22,7 @@ import {
 } from "../functions";
 import toast from "solid-toast";
 import { Tiptap } from "./tiptap/Tiptap";
+import { writeFile } from "@tauri-apps/plugin-fs";
 
 export function Layout() {
     onMount(() => {
@@ -205,6 +206,17 @@ export function Layout() {
         }
     };
 
+    const handleSaveFile = (filePath: string, content: string) => {
+        try {
+            writeFile(filePath, new TextEncoder().encode(content)).then(() => {
+                toast.success("File saved");
+                handleSetFileDirty(filePath, false);
+            });
+        } catch {
+            toast.error("Failed to save file");
+        }
+    };
+
     return (
         <div class="size-full flex">
             <aside class="w-54 min-w-54 resize-x overflow-x-auto shadow flex flex-col">
@@ -316,7 +328,12 @@ export function Layout() {
                                                         isDirty,
                                                     )
                                                 }
-                                                onSave={() => {}}
+                                                onSave={(content) =>
+                                                    handleSaveFile(
+                                                        item.path,
+                                                        content,
+                                                    )
+                                                }
                                                 active={
                                                     currentFile()?.path ==
                                                     item.path
