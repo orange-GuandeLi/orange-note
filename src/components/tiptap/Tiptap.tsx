@@ -5,7 +5,7 @@ import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
 import { Markdown } from "@tiptap/markdown";
 import Heading from "@tiptap/extension-heading";
-import { TaskList } from "@tiptap/extension-list";
+import { ListKit } from "@tiptap/extension-list";
 import History from "@tiptap/extension-history";
 import "../../assets/tiptap.css";
 import { OrangeTaskItem } from "./extansions/OrangeTaskItem";
@@ -33,7 +33,7 @@ export function Tiptap(props: Props) {
             Text,
             Markdown,
             Heading,
-            TaskList,
+            ListKit,
             OrangeTaskItem,
             History,
         ],

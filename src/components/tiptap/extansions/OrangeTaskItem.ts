@@ -1,5 +1,5 @@
 import { TaskItem } from "@tiptap/extension-list";
-import type { Node } from '@tiptap/pm/model'
+import type { Node } from "@tiptap/pm/model";
 
 export const OrangeTaskItem = TaskItem.extend({
     addNodeView() {
@@ -8,7 +8,11 @@ export const OrangeTaskItem = TaskItem.extend({
             const checkboxWrapper = document.createElement("label");
             const checkboxStyler = document.createElement("span");
             const checkbox = document.createElement("input");
-            checkbox.classList.add("checkbox", "checkbox-xs", "checkbox-primary");
+            checkbox.classList.add(
+                "checkbox",
+                "checkbox-xs",
+                "checkbox-primary",
+            );
             const content = document.createElement("div");
 
             const updateA11Y = (currentNode: Node) => {
