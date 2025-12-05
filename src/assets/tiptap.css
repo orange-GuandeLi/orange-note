@@ -1,6 +1,7 @@
 @reference "../app.css";
 
 .ProseMirror {
+    /* heading */
     h1, h2, h3, h4, h5, h6 {
         @apply my-2;
     }
@@ -29,6 +30,7 @@
         @apply text-base font-bold;
     }
 
+    /* list */
     ul[data-type="taskList"] {
         @apply list-none;
 
@@ -45,5 +47,10 @@
                 @apply line-through text-base-300;
             }
         }
+    }
+
+    /* code */
+    code {
+        @apply px-2 bg-base-200 rounded text-xs;
     }
 }

@@ -9,6 +9,7 @@ import { ListKit } from "@tiptap/extension-list";
 import History from "@tiptap/extension-history";
 import "../../assets/tiptap.css";
 import { OrangeTaskItem } from "./extansions/OrangeTaskItem";
+import Code from '@tiptap/extension-code'
 
 type Props = {
     content: string;
@@ -36,6 +37,7 @@ export function Tiptap(props: Props) {
             ListKit,
             OrangeTaskItem,
             History,
+            Code,
         ],
         editorProps: {
             attributes: {
