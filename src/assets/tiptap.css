@@ -2,7 +2,12 @@
 
 .ProseMirror {
     /* heading */
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         @apply my-2;
     }
 
@@ -52,5 +57,14 @@
     /* code */
     code {
         @apply px-2 bg-base-200 rounded text-xs;
+    }
+
+    /* code block */
+    pre {
+        @apply bg-neutral rounded text-neutral-content my-2 px-2 py-1;
+
+        code {
+            @apply bg-transparent text-inherit text-xs p-0;
+        }
     }
 }
