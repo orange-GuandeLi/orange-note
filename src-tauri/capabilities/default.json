@@ -24,7 +24,7 @@
                 }
             ]
         },
-		{
+        {
             "identifier": "fs:allow-read-dir",
             "allow": [
                 {

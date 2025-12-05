@@ -5,9 +5,10 @@ import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
 import { Markdown } from "@tiptap/markdown";
 import Heading from "@tiptap/extension-heading";
-import { TaskList, TaskItem } from '@tiptap/extension-list';
+import { TaskList } from "@tiptap/extension-list";
 import History from "@tiptap/extension-history";
 import "../../assets/tiptap.css";
+import { OrangeTaskItem } from "./extansions/OrangeTaskItem";
 
 type Props = {
     content: string;
@@ -32,7 +33,7 @@ export function Tiptap(props: Props) {
             Markdown,
             Heading,
             TaskList,
-            TaskItem,
+            OrangeTaskItem,
             History,
         ],
         editorProps: {
@@ -48,7 +49,9 @@ export function Tiptap(props: Props) {
             dirtyTimeoutId = setTimeout(() => {
                 const orignalContent = editor.markdown?.parse(props.content);
                 const draft = editor.getJSON();
-                props.onFileDirty(JSON.stringify(draft) != JSON.stringify(orignalContent));
+                props.onFileDirty(
+                    JSON.stringify(draft) != JSON.stringify(orignalContent),
+                );
             }, 500);
         },
         onBlur: ({ editor }) => {
@@ -100,7 +103,11 @@ export function Tiptap(props: Props) {
                 hidden: !props.active,
             }}
         >
-            <article id="editor" class="size-full overflow-auto prose" ref={editorRef}></article>
+            <article
+                id="editor"
+                class="size-full overflow-auto"
+                ref={editorRef}
+            ></article>
         </div>
     );
 }

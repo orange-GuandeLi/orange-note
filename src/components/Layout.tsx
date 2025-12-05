@@ -3,7 +3,15 @@ import { FileList } from "./FileList";
 import { Icon } from "./Icon";
 import { RecentFileList } from "./RecentFileList";
 import { NoFile } from "./NoFile";
-import { createSignal, For, Match, onMount, Show, Switch, createEffect } from "solid-js";
+import {
+    createSignal,
+    For,
+    Match,
+    onMount,
+    Show,
+    Switch,
+    createEffect,
+} from "solid-js";
 import { createStore } from "solid-js/store";
 import {
     getFileContent,
@@ -45,10 +53,14 @@ export function Layout() {
 
                 // set current file
                 if (opendFilesOrderJSON.length > 0) {
-                    handleFileClick(opendFilesOrderJSON[opendFilesOrderJSON.length - 1]);
+                    handleFileClick(
+                        opendFilesOrderJSON[opendFilesOrderJSON.length - 1],
+                    );
                 }
             } catch {
-                toast.error("Faild to read folder or recent files or opend files order");
+                toast.error(
+                    "Faild to read folder or recent files or opend files order",
+                );
             }
         }
     });
@@ -63,10 +75,15 @@ export function Layout() {
     let opendFilesOrder: string[] = [];
 
     createEffect(() => {
-        localStorage.setItem("opendFiles", JSON.stringify(opendFiles.map((item) => ({
-            ...item,
-            content: "",
-        }))));
+        localStorage.setItem(
+            "opendFiles",
+            JSON.stringify(
+                opendFiles.map((item) => ({
+                    ...item,
+                    content: "",
+                })),
+            ),
+        );
     });
 
     createEffect(() => {
@@ -96,7 +113,10 @@ export function Layout() {
 
     const setOpendFilesOrderData = (order: string[]) => {
         opendFilesOrder = order;
-        localStorage.setItem("opendFilesOrder", JSON.stringify(opendFilesOrder));
+        localStorage.setItem(
+            "opendFilesOrder",
+            JSON.stringify(opendFilesOrder),
+        );
     };
 
     const handleFileClick = (filePath: string) => {
@@ -110,13 +130,17 @@ export function Layout() {
         // 读取文件更新content
         try {
             getFileContent(filePath).then((file) => {
-                const fileIndex = opendFiles.findIndex((item) => item.path === filePath);
+                const fileIndex = opendFiles.findIndex(
+                    (item) => item.path === filePath,
+                );
                 if (fileIndex === -1) {
                     setOpendFiles([...opendFiles, file]);
                 } else {
                     setOpendFiles(fileIndex, "content", file.content);
                 }
-                setCurrentFile(opendFiles.find((item) => item.path === filePath));
+                setCurrentFile(
+                    opendFiles.find((item) => item.path === filePath),
+                );
             });
         } catch {
             toast.error("Failed to read file");
@@ -146,17 +170,22 @@ export function Layout() {
     };
 
     const handleCloseFile = (filePath: string) => {
-        const newOpendFiles = opendFiles.filter((item) => item.path !== filePath);
+        const newOpendFiles = opendFiles.filter(
+            (item) => item.path !== filePath,
+        );
         setOpendFiles(newOpendFiles);
 
         // 记录一个文件关闭顺序栈
-        const newOpendFilesOrder = opendFilesOrder.filter((item) => item !== filePath);
+        const newOpendFilesOrder = opendFilesOrder.filter(
+            (item) => item !== filePath,
+        );
         setOpendFilesOrderData(newOpendFilesOrder);
         // 关闭文件后，设置当前文件为最近打开的文件，
         // 如果最近打开的文件被关闭了，就找倒数第二个最近打开的文件
         if (currentFile()?.path === filePath) {
             if (newOpendFilesOrder.length > 0) {
-                const lastFilePath = newOpendFilesOrder[newOpendFilesOrder.length - 1];
+                const lastFilePath =
+                    newOpendFilesOrder[newOpendFilesOrder.length - 1];
                 const newCurrentFile = newOpendFiles.find(
                     (item) => item.path === lastFilePath,
                 );
@@ -249,7 +278,9 @@ export function Layout() {
                                                     class="btn btn-xs btn-circle btn-ghost btn-primary absolute right-2"
                                                     onclick={(e) => {
                                                         e.stopPropagation();
-                                                        handleCloseFile(item.path);
+                                                        handleCloseFile(
+                                                            item.path,
+                                                        );
                                                     }}
                                                 >
                                                     <Icon
@@ -258,13 +289,13 @@ export function Layout() {
                                                     />
                                                 </button>
 
-                                                {
-                                                    dirtyFiles().includes(item.path) &&(
-                                                        <span class="absolute right-1 -top-1 text-lg text-primary">
-                                                            *
-                                                        </span>
-                                                    )
-                                                }
+                                                {dirtyFiles().includes(
+                                                    item.path,
+                                                ) && (
+                                                    <span class="absolute right-1 -top-1 text-lg text-primary">
+                                                        *
+                                                    </span>
+                                                )}
                                                 <span class="truncate">
                                                     {item.name}
                                                 </span>
@@ -279,7 +310,12 @@ export function Layout() {
                                         return (
                                             <Tiptap
                                                 content={item.content}
-                                                onFileDirty={(isDirty) => handleSetFileDirty(item.path, isDirty)}
+                                                onFileDirty={(isDirty) =>
+                                                    handleSetFileDirty(
+                                                        item.path,
+                                                        isDirty,
+                                                    )
+                                                }
                                                 onSave={() => {}}
                                                 active={
                                                     currentFile()?.path ==

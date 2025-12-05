@@ -1,5 +1,17 @@
 @reference "../app.css";
 
 .ProseMirror {
-    
+    ul[data-type="taskList"] {
+        @apply list-none;
+
+        > li {
+            @apply flex items-center gap-2 mb-0;
+
+            > div {
+                > p {
+                    margin: 0;
+                }
+            }
+        }
+    }
 }
