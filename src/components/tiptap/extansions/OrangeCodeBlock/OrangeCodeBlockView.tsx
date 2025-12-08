@@ -18,7 +18,6 @@ export function OrangeCodeBlockView(props: SolidNodeViewRendererProps) {
                 ref={props.contentRef}
                 class={`language-${props.node.attrs.language} bg-transparent`}
             >
-                {props.node.textContent}
             </code>
             <div
                 contentEditable={false}

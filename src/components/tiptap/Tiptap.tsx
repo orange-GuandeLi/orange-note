@@ -34,9 +34,10 @@ export function Tiptap(props: Props) {
             Text,
             Markdown,
             ListKit,
+            History,
+
             OrangeTaskItem,
             OrangeCode,
-            History,
             OrangeCodeBlock,
             OrangeHeading,
         ],
