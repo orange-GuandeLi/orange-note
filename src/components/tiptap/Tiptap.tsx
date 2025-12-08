@@ -46,17 +46,16 @@ export function Tiptap(props: Props) {
                 class: "size-full focus:outline-none text-sm",
             },
         },
+        onMount: ({ editor }) => {
+            originalContent = editor.getMarkdown();
+        },
         onUpdate: ({ editor }) => {
             if (dirtyTimeoutId) {
                 clearTimeout(dirtyTimeoutId);
             }
-
             dirtyTimeoutId = setTimeout(() => {
-                const orignalContent = editor.markdown?.parse(originalContent);
-                const draft = editor.getJSON();
-                props.onFileDirty(
-                    JSON.stringify(draft) != JSON.stringify(orignalContent),
-                );
+                const currentContent = editor.getMarkdown();
+                props.onFileDirty(currentContent !== props.content);
             }, 500);
         },
         onBlur: ({ editor }) => {

@@ -198,7 +198,6 @@ export function Layout() {
     };
 
     const handleSetFileDirty = (filePath: string, isDirty: boolean) => {
-        console.log(isDirty);
         if (isDirty) {
             setDirtyFiles((prev) => [...prev, filePath]);
         } else {
