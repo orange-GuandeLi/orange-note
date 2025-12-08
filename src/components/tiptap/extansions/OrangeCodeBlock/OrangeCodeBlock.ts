@@ -25,8 +25,12 @@ export const CodeBlockLanguages = [
     {
         label: "Bash",
         value: "bash",
+    },
+    {
+        label: "Plain Text",
+        value: "plaintext",
     }
-];
+].sort((a, b) => a.label.localeCompare(b.label));
 
 export const OrangeCodeBlock = CodeBlockLowlight.configure({
     defaultLanguage: "plaintext",

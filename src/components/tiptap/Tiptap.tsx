@@ -4,13 +4,12 @@ import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
 import { Markdown } from "@tiptap/markdown";
-import Heading from "@tiptap/extension-heading";
 import { ListKit } from "@tiptap/extension-list";
 import History from "@tiptap/extension-history";
-import "../../assets/tiptap.css";
 import { OrangeTaskItem } from "./extansions/OrangeTaskItem/OrangeTaskItem";
 import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
 import { OrangeCode } from "./extansions/OrangeCode";
+import { OrangeHeading } from "./extansions/OrangeHeading";
 
 type Props = {
     content: string;
@@ -34,12 +33,12 @@ export function Tiptap(props: Props) {
             Paragraph,
             Text,
             Markdown,
-            Heading,
             ListKit,
             OrangeTaskItem,
             OrangeCode,
             History,
             OrangeCodeBlock,
+            OrangeHeading,
         ],
         editorProps: {
             attributes: {
