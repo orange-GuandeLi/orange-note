@@ -10,7 +10,7 @@ import History from "@tiptap/extension-history";
 import "../../assets/tiptap.css";
 import { OrangeTaskItem } from "./extansions/OrangeTaskItem";
 import Code from "@tiptap/extension-code";
-import CodeBlock from "@tiptap/extension-code-block";
+import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
 
 type Props = {
     content: string;
@@ -39,7 +39,7 @@ export function Tiptap(props: Props) {
             OrangeTaskItem,
             History,
             Code,
-            CodeBlock,
+            OrangeCodeBlock,
         ],
         editorProps: {
             attributes: {

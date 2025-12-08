@@ -124,3 +124,7 @@ export function getFileName(filePath: string) {
 export function getFileExtension(filePath: string) {
     return filePath.split(".").pop() || "";
 }
+
+export function splitClassName(className: string) {
+    return className.split(" ");
+}
