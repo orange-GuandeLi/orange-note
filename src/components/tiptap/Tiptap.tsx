@@ -8,7 +8,7 @@ import Heading from "@tiptap/extension-heading";
 import { ListKit } from "@tiptap/extension-list";
 import History from "@tiptap/extension-history";
 import "../../assets/tiptap.css";
-import { OrangeTaskItem } from "./extansions/OrangeTaskItem";
+import { OrangeTaskItem } from "./extansions/OrangeTaskItem/OrangeTaskItem";
 import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
 import { OrangeCode } from "./extansions/OrangeCode";
 

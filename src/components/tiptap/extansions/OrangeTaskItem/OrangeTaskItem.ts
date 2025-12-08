@@ -1,6 +1,6 @@
 import { TaskItem } from "@tiptap/extension-list";
 import type { Node } from "@tiptap/pm/model";
-import { splitClassName } from "../../../functions";
+import { splitClassName } from "../../../../functions";
 
 export const OrangeTaskItem = TaskItem.extend({
     addNodeView() {

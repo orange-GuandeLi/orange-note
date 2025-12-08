@@ -3,8 +3,7 @@
 import { render } from "solid-js/web";
 import { NodeView } from "prosemirror-view";
 import { Component, mergeProps } from "solid-js";
-import { NodeViewRendererProps } from "@tiptap/core";
-import { EditorView } from "prosemirror-view";
+import { Editor, NodeViewRendererProps } from "@tiptap/core";
 import { Node as ProseMirrorNode } from "prosemirror-model";
 import { createStore, SetStoreFunction } from "solid-js/store";
 
@@ -20,7 +19,7 @@ export class SolidNodeView implements NodeView {
 
     // 我们需要保存这些引用以供 updateAttributes 使用
     private node: ProseMirrorNode;
-    private view: EditorView;
+    private editor: Editor;
     private getPos: () => number | undefined;
     private setState: SetStoreFunction<NodeViewRendererProps>;
 
@@ -29,7 +28,7 @@ export class SolidNodeView implements NodeView {
         props: NodeViewRendererProps,
     ) {
         this.node = props.node;
-        this.view = props.view;
+        this.editor = props.editor;
         this.getPos = props.getPos;
         const [state, setState] = createStore(props);
         this.setState = setState;
@@ -41,23 +40,27 @@ export class SolidNodeView implements NodeView {
         };
 
         const updateAttributes = (attributes: Record<string, any>) => {
-            if (typeof this.getPos === "function") {
-                const pos = this.getPos();
-                if (pos === undefined) return;
+            if (this.editor.isEditable && typeof this.getPos === "function") {
+                    this.editor
+                        .chain()
+                        .focus(undefined, { scrollIntoView: false })
+                        .command(({ tr }) => {
+                            const position = this.getPos();
 
-                // 创建一个事务：设置当前位置节点的标记（属性）
-                const tr = this.view.state.tr.setNodeMarkup(
-                    pos,
-                    undefined, // 保持节点类型不变
-                    {
-                        ...this.node.attrs, // 合并旧属性
-                        ...attributes, // 覆盖新属性
-                    },
-                );
+                            if (typeof position !== "number") {
+                                return false;
+                            }
+                            const currentNode = tr.doc.nodeAt(position);
 
-                // 派发事务
-                this.view.dispatch(tr);
-            }
+                            tr.setNodeMarkup(position, undefined, {
+                                ...currentNode?.attrs,
+                                ...attributes,
+                            });
+
+                            return true;
+                        })
+                        .run();
+                }
         };
 
         this.dispose = render(
