@@ -8,11 +8,11 @@ import { ListKit } from "@tiptap/extension-list";
 import History from "@tiptap/extension-history";
 import { OrangeTaskItem } from "./extansions/OrangeTaskItem/OrangeTaskItem";
 import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
-import { OrangeCode } from "./extansions/OrangeCode";
-import { OrangeHeading } from "./extansions/OrangeHeading";
 import Typography from '@tiptap/extension-typography'
-import { OrangeBulletList } from "./extansions/OrangeBulletList";
-import { OrangeListItem } from "./extansions/OrangeListItem";
+import Code from "@tiptap/extension-code";
+import Heading from "@tiptap/extension-heading";
+import "./tiptap.css";
+
 
 type Props = {
     content: string;
@@ -39,17 +39,23 @@ export function Tiptap(props: Props) {
             Markdown,
             ListKit.configure({
                 taskItem: false,
-                bulletList: false,
-                listItem: false,
             }),
             History,
+            Code.configure({
+                HTMLAttributes: {
+                    class: "bg-base-200 px-1 rounded text-xs",
+                },
+            }),
+            Heading.configure({
+                levels: [1, 2, 3, 4, 5, 6],
+                HTMLAttributes: {
+                    class: "font-bold my-2",
+                },
+            }),
 
-            OrangeBulletList,
-            OrangeListItem,
+
             OrangeTaskItem,
-            OrangeCode,
             OrangeCodeBlock,
-            OrangeHeading,
         ],
         editorProps: {
             attributes: {
