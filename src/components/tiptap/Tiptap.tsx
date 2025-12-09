@@ -33,7 +33,9 @@ export function Tiptap(props: Props) {
             Paragraph,
             Text,
             Markdown,
-            ListKit,
+            ListKit.configure({
+                taskItem: false,
+            }),
             History,
 
             OrangeTaskItem,
