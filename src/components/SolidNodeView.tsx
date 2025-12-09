@@ -24,6 +24,7 @@ export class SolidNodeView implements NodeView {
     private setState: SetStoreFunction<NodeViewRendererProps>;
 
     constructor(
+        dom: HTMLElement,
         component: Component<SolidNodeViewRendererProps>,
         props: NodeViewRendererProps,
     ) {
@@ -32,8 +33,7 @@ export class SolidNodeView implements NodeView {
         this.getPos = props.getPos;
         const [state, setState] = createStore(props);
         this.setState = setState;
-
-        this.dom = document.createElement("div");
+        this.dom = dom;
         const contentRef = (element: HTMLElement) => {
             // 当 Solid 组件渲染时，这个函数会被调用，将 <code> 元素赋值给 this.contentDOM
             this.contentDOM = element;
@@ -41,26 +41,26 @@ export class SolidNodeView implements NodeView {
 
         const updateAttributes = (attributes: Record<string, any>) => {
             if (this.editor.isEditable && typeof this.getPos === "function") {
-                    this.editor
-                        .chain()
-                        .focus(undefined, { scrollIntoView: false })
-                        .command(({ tr }) => {
-                            const position = this.getPos();
+                this.editor
+                    .chain()
+                    .focus(undefined, { scrollIntoView: false })
+                    .command(({ tr }) => {
+                        const position = this.getPos();
 
-                            if (typeof position !== "number") {
-                                return false;
-                            }
-                            const currentNode = tr.doc.nodeAt(position);
+                        if (typeof position !== "number") {
+                            return false;
+                        }
+                        const currentNode = tr.doc.nodeAt(position);
 
-                            tr.setNodeMarkup(position, undefined, {
-                                ...currentNode?.attrs,
-                                ...attributes,
-                            });
+                        tr.setNodeMarkup(position, undefined, {
+                            ...currentNode?.attrs,
+                            ...attributes,
+                        });
 
-                            return true;
-                        })
-                        .run();
-                }
+                        return true;
+                    })
+                    .run();
+            }
         };
 
         this.dispose = render(

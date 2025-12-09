@@ -3,10 +3,16 @@ import { mergeAttributes } from "@tiptap/core";
 
 export const OrangeHeading = Heading.extend({
     renderHTML({ node, HTMLAttributes }) {
-        const hasLevel = this.options.levels.includes(node.attrs.level)
-        const level = hasLevel ? node.attrs.level : this.options.levels[0]
+        const hasLevel = this.options.levels.includes(node.attrs.level);
+        const level = hasLevel ? node.attrs.level : this.options.levels[0];
 
-        return [`h${level}`, mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { class: getHeadingClass(level) }), 0]
+        return [
+            `h${level}`,
+            mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+                class: getHeadingClass(level),
+            }),
+            0,
+        ];
     },
 });
 

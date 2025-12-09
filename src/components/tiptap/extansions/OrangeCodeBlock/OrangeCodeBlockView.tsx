@@ -13,12 +13,11 @@ export function OrangeCodeBlockView(props: SolidNodeViewRendererProps) {
     );
 
     return (
-        <pre class="bg-gray-900 dark:bg-gray-100 mb-2 mt-8 p-2 rounded text-gray-100 dark:text-gray-900 relative">
+        <>
             <code
                 ref={props.contentRef}
                 class={`language-${props.node.attrs.language} bg-transparent`}
-            >
-            </code>
+            ></code>
             <div
                 contentEditable={false}
                 class="absolute -top-8 right-0 flex items-center gap-2"
@@ -57,6 +56,6 @@ export function OrangeCodeBlockView(props: SolidNodeViewRendererProps) {
                     </ul>
                 </div>
             </div>
-        </pre>
+        </>
     );
 }
