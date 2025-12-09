@@ -10,6 +10,9 @@ import { OrangeTaskItem } from "./extansions/OrangeTaskItem/OrangeTaskItem";
 import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
 import { OrangeCode } from "./extansions/OrangeCode";
 import { OrangeHeading } from "./extansions/OrangeHeading";
+import Typography from '@tiptap/extension-typography'
+import { OrangeBulletList } from "./extansions/OrangeBulletList";
+import { OrangeListItem } from "./extansions/OrangeListItem";
 
 type Props = {
     content: string;
@@ -32,12 +35,17 @@ export function Tiptap(props: Props) {
             Document,
             Paragraph,
             Text,
+            Typography,
             Markdown,
             ListKit.configure({
                 taskItem: false,
+                bulletList: false,
+                listItem: false,
             }),
             History,
 
+            OrangeBulletList,
+            OrangeListItem,
             OrangeTaskItem,
             OrangeCode,
             OrangeCodeBlock,
