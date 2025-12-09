@@ -14,10 +14,10 @@ export function OrangeTaskItemView(props: SolidNodeViewRendererProps) {
                     })
                 }
             />
-            <span
-                class="text-gray-900 dark:text-gray-100 peer-checked:line-through peer-checked:text-base-300"
+            <div
+                class="text-gray-900 dark:text-gray-100 peer-checked:line-through peer-checked:text-base-300 min-h-full min-w-1"
                 ref={props.contentRef}
-            ></span>
+            ></div>
         </>
     );
 }
