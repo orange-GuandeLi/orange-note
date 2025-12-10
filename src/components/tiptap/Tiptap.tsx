@@ -12,6 +12,7 @@ import Typography from "@tiptap/extension-typography";
 import Code from "@tiptap/extension-code";
 import Heading from "@tiptap/extension-heading";
 import { Placeholder } from "@tiptap/extensions";
+import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import "./tiptap.css";
 
 type Props = {
@@ -54,6 +55,11 @@ export function Tiptap(props: Props) {
             }),
             Placeholder.configure({
                 placeholder: "Start writing...",
+            }),
+            HorizontalRule.configure({
+                HTMLAttributes: {
+                    class: "divider border-none",
+                },
             }),
 
             OrangeTaskItem,
