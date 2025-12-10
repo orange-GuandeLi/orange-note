@@ -28,17 +28,10 @@ import { CreateFileModal } from "./CreateFileModal";
 
 export function Layout() {
     onMount(() => {
-        init();
-    });
-
-    const init = () => {
         const selectedFolder = localStorage.getItem("selectedFolder");
         if (selectedFolder) {
             try {
-                // open folder
-                getFolderContent(selectedFolder).then((folder) => {
-                    setSelectedFolder(folder);
-                });
+                openFolder(selectedFolder);
 
                 // set recent files
                 const recentFilesJSON = JSON.parse(
@@ -70,7 +63,7 @@ export function Layout() {
                 );
             }
         }
-    };
+    });
 
     const [selectedFolder, setSelectedFolder] = createSignal<
         RecursiveDirEntry | undefined
@@ -125,6 +118,12 @@ export function Layout() {
             toast.error("Failed to update recent folders");
         }
     });
+
+    const  openFolder = async (path: string) => {
+        // open folder
+        const folder = await getFolderContent(path);
+        setSelectedFolder(folder);
+    }
 
     const setOpendFilesOrderData = (order: string[]) => {
         opendFilesOrder = order;
@@ -273,8 +272,8 @@ export function Layout() {
                         <div class="shrink-0">
                             <CreateFileModal
                                 basePath={basePath()}
-                                onSuccess={(path) => {
-                                    init();
+                                onSuccess={async (path) => {
+                                    await openFolder(selectedFolder()!.path);
                                     handleFileClick(path);
                                 }}
                             />
@@ -283,7 +282,9 @@ export function Layout() {
                             </button> */}
                             <button
                                 class="btn btn-square btn-xs btn-ghost"
-                                onClick={init}
+                                onClick={async () => {
+                                    await openFolder(selectedFolder()!.path);
+                                }}
                             >
                                 <Icon icon={RotateCcw} size="small" />
                             </button>
@@ -380,6 +381,7 @@ export function Layout() {
                                                     currentFile()?.path ==
                                                     item.path
                                                 }
+                                                basePath={basePath()}
                                             />
                                         );
                                     }}

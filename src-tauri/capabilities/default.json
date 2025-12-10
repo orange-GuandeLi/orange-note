@@ -17,7 +17,7 @@
             ]
         },
         {
-            "identifier": "fs:allow-home-write",
+            "identifier": "fs:allow-home-write-recursive",
             "allow": [
                 {
                     "path": "$HOME/**/*.md"
@@ -26,6 +26,22 @@
         },
         {
             "identifier": "fs:allow-read-dir",
+            "allow": [
+                {
+                    "path": "$HOME/**/*"
+                }
+            ]
+        },
+        {
+            "identifier": "fs:allow-exists",
+            "allow": [
+                {
+                    "path": "$HOME/**/*"
+                }
+            ]
+        },
+        {
+            "identifier": "fs:allow-mkdir",
             "allow": [
                 {
                     "path": "$HOME/**/*"

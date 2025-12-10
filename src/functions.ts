@@ -1,5 +1,6 @@
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { DirEntry, readDir, readTextFile } from "@tauri-apps/plugin-fs";
+import { BaseDirectory, DirEntry, exists, mkdir, readDir, readTextFile, writeFile } from "@tauri-apps/plugin-fs";
 
 export type OpenFile = {
     path: string;
@@ -138,4 +139,16 @@ export function getFileExtension(filePath: string) {
 
 export function splitClassName(className: string) {
     return className.split(" ");
+}
+
+export async function saveImage(file: File, path: string) {
+    const imageDir = `${path}/OrangeNote-images`;
+    const imagePath = `${imageDir}/${crypto.randomUUID()}-${file.name}`;
+    // 判断是否存在文件夹
+    if (!await exists(imageDir)) {
+        await mkdir(imageDir, { recursive: true });
+    }
+    await writeFile(imagePath, new Uint8Array(await file.arrayBuffer()));
+    // 返回路径
+    return convertFileSrc(imagePath);
 }

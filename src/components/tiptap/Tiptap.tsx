@@ -11,15 +11,20 @@ import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
 import Typography from "@tiptap/extension-typography";
 import Code from "@tiptap/extension-code";
 import Heading from "@tiptap/extension-heading";
-import { Placeholder } from "@tiptap/extensions";
+import { Placeholder, Dropcursor } from "@tiptap/extensions";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
+import Image from "@tiptap/extension-image";
+
 import "./tiptap.css";
+import { saveImage } from "../../functions";
+import toast from "solid-toast";
 
 type Props = {
     content: string;
     onSave: (content: string) => void;
     onFileDirty: (isDirty: boolean) => void;
     active: boolean;
+    basePath: string;
 };
 
 export function Tiptap(props: Props) {
@@ -61,6 +66,16 @@ export function Tiptap(props: Props) {
                     class: "divider border-none",
                 },
             }),
+            Image.configure({
+                resize: {
+                    enabled: true,
+                    directions: ['top', 'bottom', 'left', 'right'], // can be any direction or diagonal combination
+                    minWidth: 50,
+                    minHeight: 50,
+                    alwaysPreserveAspectRatio: true,
+                }
+            }),
+            Dropcursor,
 
             OrangeTaskItem,
             OrangeCodeBlock,
@@ -68,6 +83,40 @@ export function Tiptap(props: Props) {
         editorProps: {
             attributes: {
                 class: "size-full focus:outline-none text-sm",
+            },
+            // 拦截粘贴行为
+            handlePaste(view, event) {
+                const items = event.clipboardData?.items;
+                if (!items) {
+                    return false;
+                }
+                for (const item of items) {
+                    if (item.type.indexOf('image') !== -1) {
+                    // 1. 发现是图片，拦截默认粘贴行为
+                    event.preventDefault();
+
+                    const file = item.getAsFile();
+                    if (file) {
+                        // 2. 执行你的存储逻辑（例如上传到服务器）
+                        try {
+                            saveImage(file, props.basePath).then((imageUrl) => {
+                                view.dispatch(
+                                    view.state.tr.replaceSelectionWith(
+                                    view.state.schema.nodes.image.create({ src: imageUrl })
+                                    )
+                                );
+                            });
+                        } catch (e) {
+                            console.error(e);
+                            toast.error(
+                                `Failed to save image ${file.name}`,
+                            );
+                        }
+                    }
+                    return true; // 表示已处理
+                    }
+                }
+                return false; // 非图片，交给 Tiptap 默认处理
             },
         },
         onMount: ({ editor }) => {
