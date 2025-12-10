@@ -11,6 +11,7 @@ import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
 import Typography from '@tiptap/extension-typography'
 import Code from "@tiptap/extension-code";
 import Heading from "@tiptap/extension-heading";
+import { Placeholder } from "@tiptap/extensions";
 import "./tiptap.css";
 
 
@@ -29,7 +30,7 @@ export function Tiptap(props: Props) {
 
     const editor = createTiptapEditor(() => ({
         element: editorRef!,
-        content: props.content,
+        content: props.content ? props.content : undefined,
         contentType: "markdown",
         extensions: [
             Document,
@@ -56,6 +57,9 @@ export function Tiptap(props: Props) {
 
             OrangeTaskItem,
             OrangeCodeBlock,
+            Placeholder.configure({
+                placeholder: "Start writing...",
+            }),
         ],
         editorProps: {
             attributes: {
@@ -85,12 +89,14 @@ export function Tiptap(props: Props) {
             // 恢复光标位置
             if (cursorPosition) {
                 editor?.commands.setTextSelection(cursorPosition);
+            } else if (!cursorPosition && !props.content) {
+                editor?.commands.setTextSelection(0);
             }
         },
     }));
 
     createEffect(() => {
-        if (props.active && cursorPosition) {
+        if (props.active && (cursorPosition || !props.content)) {
             setTimeout(() => {
                 editor()?.commands.focus();
             }, 0);

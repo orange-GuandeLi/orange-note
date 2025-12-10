@@ -1,4 +1,4 @@
-@reference "tailwindcss";
+@reference "../../app.css";
 
 .ProseMirror {
     h1 {
@@ -22,5 +22,10 @@
 
     ol, ul:not([data-type="taskList"]) {
         @apply list-disc list-inside;
+    }
+
+    p.is-editor-empty:first-child::before {
+        @apply float-left h-0 pointer-events-none text-base-300;
+        content: attr(data-placeholder);
     }
 }
