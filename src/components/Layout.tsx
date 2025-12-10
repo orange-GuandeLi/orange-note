@@ -26,6 +26,10 @@ import { writeFile } from "@tauri-apps/plugin-fs";
 
 export function Layout() {
     onMount(() => {
+        init();
+    });
+
+    const init = () => {
         const selectedFolder = localStorage.getItem("selectedFolder");
         if (selectedFolder) {
             try {
@@ -64,7 +68,7 @@ export function Layout() {
                 );
             }
         }
-    });
+    }
 
     const [selectedFolder, setSelectedFolder] = createSignal<
         RecursiveDirEntry | undefined
@@ -151,7 +155,9 @@ export function Layout() {
     const handleOpenFolder = () => {
         try {
             readFolder().then((folder) => {
-                setSelectedFolder(folder);
+                if (folder) {
+                    setSelectedFolder(folder);
+                }
             });
         } catch {
             toast.error("Failed to read folder");
@@ -241,7 +247,10 @@ export function Layout() {
                             <button class="btn btn-square btn-xs btn-ghost">
                                 <Icon icon={FolderPlus} size="small" />
                             </button>
-                            <button class="btn btn-square btn-xs btn-ghost">
+                            <button
+                                class="btn btn-square btn-xs btn-ghost"
+                                onClick={init}
+                            >
                                 <Icon icon={RotateCcw} size="small" />
                             </button>
                         </div>

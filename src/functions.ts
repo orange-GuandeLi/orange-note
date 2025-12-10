@@ -66,7 +66,18 @@ export async function getFolderContent(folderPath: string) {
             isSymlink: false,
             name: getFileName(folderPath),
             path: folderPath,
-            children: files,
+            // 文件夹在前，文件在后，同时文件以字典序排序
+            children: files.sort((a, b) => {
+                // 文件夹在前，文件在后
+                if (a.isDirectory && !b.isDirectory) {
+                    return -1;
+                }
+                if (!a.isDirectory && b.isDirectory) {
+                    return 1;
+                }
+                // 字典序排序
+                return a.name.localeCompare(b.name) ? -1 : 1;
+            }),
         };
     } catch (e2) {
         console.error(`Failed to read ${folderPath} as a directory`, e2);
