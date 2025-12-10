@@ -70,7 +70,7 @@ export function Layout() {
                 );
             }
         }
-    }
+    };
 
     const [selectedFolder, setSelectedFolder] = createSignal<
         RecursiveDirEntry | undefined
@@ -79,10 +79,14 @@ export function Layout() {
     const [currentFile, setCurrentFile] = createSignal<OpenFile | undefined>();
     const [opendFiles, setOpendFiles] = createStore<OpenFile[]>([]);
     const [dirtyFiles, setDirtyFiles] = createSignal<string[]>([]);
-    const [currentActiveFileOrFolder, setCurrentActiveFileOrFolder] = createSignal<{
-        isFile: boolean;
-        path: string;
-    }| undefined>();
+    const [currentActiveFileOrFolder, setCurrentActiveFileOrFolder] =
+        createSignal<
+            | {
+                  isFile: boolean;
+                  path: string;
+              }
+            | undefined
+        >();
     let opendFilesOrder: string[] = [];
 
     createEffect(() => {
@@ -238,7 +242,9 @@ export function Layout() {
         const currentActive = currentActiveFileOrFolder();
         if (currentActive) {
             if (currentActive.isFile) {
-                return currentActive.path.split("/").slice(0, -1).join("/") || "";
+                return (
+                    currentActive.path.split("/").slice(0, -1).join("/") || ""
+                );
             } else {
                 return currentActive.path || "";
             }
@@ -266,9 +272,7 @@ export function Layout() {
                         </span>
                         <div class="shrink-0">
                             <CreateFileModal
-                                basePath={
-                                    basePath()
-                                }
+                                basePath={basePath()}
                                 onSuccess={(path) => {
                                     init();
                                     handleFileClick(path);

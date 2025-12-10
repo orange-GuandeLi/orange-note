@@ -8,12 +8,11 @@ import { ListKit } from "@tiptap/extension-list";
 import History from "@tiptap/extension-history";
 import { OrangeTaskItem } from "./extansions/OrangeTaskItem/OrangeTaskItem";
 import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
-import Typography from '@tiptap/extension-typography'
+import Typography from "@tiptap/extension-typography";
 import Code from "@tiptap/extension-code";
 import Heading from "@tiptap/extension-heading";
 import { Placeholder } from "@tiptap/extensions";
 import "./tiptap.css";
-
 
 type Props = {
     content: string;
@@ -53,13 +52,12 @@ export function Tiptap(props: Props) {
                     class: "font-bold my-2",
                 },
             }),
-
-
-            OrangeTaskItem,
-            OrangeCodeBlock,
             Placeholder.configure({
                 placeholder: "Start writing...",
             }),
+
+            OrangeTaskItem,
+            OrangeCodeBlock,
         ],
         editorProps: {
             attributes: {

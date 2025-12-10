@@ -1,6 +1,6 @@
 @reference "../../app.css";
 
-.ProseMirror {
+.tiptap {
     h1 {
         @apply text-4xl;
     }
@@ -20,12 +20,56 @@
         @apply text-base;
     }
 
-    ol, ul:not([data-type="taskList"]) {
-        @apply list-disc list-inside;
-    }
-
     p.is-editor-empty:first-child::before {
         @apply float-left h-0 pointer-events-none text-base-300;
         content: attr(data-placeholder);
+    }
+
+    ul:not([data-type="taskList"]),
+    ol {
+        /* --- 第一层级：取消默认样式，作为基础容器 --- */
+        list-style: none; /* 移除默认前置点 */
+        @apply m-0 p-0; /* 移除所有默认外边距和内边距 */
+
+        /* 核心：li 样式定义 */
+        & li {
+            /* 第一层级的前置点样式 (使用 ::before) */
+            @apply relative pl-4; /* 增加左内边距，为自定义前置点腾出空间 */
+
+            &::before {
+                content: "•"; /* 使用实心圆作为第一层的前置点 */
+                @apply absolute left-0 text-primary font-bold;
+            }
+
+            /* 解决 li 内部 p 标签的问题 */
+            p {
+                @apply inline-block min-w-1;
+            }
+        }
+
+        /* --- 第二层级：li > ul/ol (针对嵌套的列表) --- */
+        & ul,
+        & ol {
+            @apply mt-1 mb-1; /* 嵌套列表的上下间距 */
+
+            /* 核心：缩进和改变前置点样式 */
+            & li {
+                &::before {
+                    content: "–"; /* 使用短横线作为第二层的前置点 */
+                    @apply text-secondary;
+                }
+            }
+
+            /* --- 第三层级及以上：li > ul/ol > li > ul/ol (更深的嵌套) --- */
+            & ul,
+            & ol {
+                & li {
+                    &::before {
+                        content: "▪"; /* 使用方块作为第三层及以上的前置点 */
+                        @apply text-neutral;
+                    }
+                }
+            }
+        }
     }
 }
