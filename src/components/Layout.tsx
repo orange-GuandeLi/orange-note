@@ -1,4 +1,4 @@
-import { FilePlus, FolderPlus, RotateCcw, X } from "lucide-solid";
+import { RotateCcw, X } from "lucide-solid";
 import { FileList } from "./FileList";
 import { Icon } from "./Icon";
 import { RecentFileList } from "./RecentFileList";
@@ -11,6 +11,7 @@ import {
     Show,
     Switch,
     createEffect,
+    createMemo,
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import {
@@ -23,6 +24,7 @@ import {
 import toast from "solid-toast";
 import { Tiptap } from "./tiptap/Tiptap";
 import { writeFile } from "@tauri-apps/plugin-fs";
+import { CreateFileModal } from "./CreateFileModal";
 
 export function Layout() {
     onMount(() => {
@@ -77,6 +79,10 @@ export function Layout() {
     const [currentFile, setCurrentFile] = createSignal<OpenFile | undefined>();
     const [opendFiles, setOpendFiles] = createStore<OpenFile[]>([]);
     const [dirtyFiles, setDirtyFiles] = createSignal<string[]>([]);
+    const [currentActiveFileOrFolder, setCurrentActiveFileOrFolder] = createSignal<{
+        isFile: boolean;
+        path: string;
+    }| undefined>();
     let opendFilesOrder: string[] = [];
 
     createEffect(() => {
@@ -125,6 +131,12 @@ export function Layout() {
     };
 
     const handleFileClick = (filePath: string) => {
+        // 更新当前激活路径
+        setCurrentActiveFileOrFolder({
+            isFile: true,
+            path: filePath,
+        });
+
         if (currentFile()?.path === filePath) {
             return;
         }
@@ -222,6 +234,18 @@ export function Layout() {
         }
     };
 
+    const basePath = createMemo(() => {
+        const currentActive = currentActiveFileOrFolder();
+        if (currentActive) {
+            if (currentActive.isFile) {
+                return currentActive.path.split("/").slice(0, -1).join("/") || "";
+            } else {
+                return currentActive.path || "";
+            }
+        }
+        return selectedFolder()?.path || "";
+    });
+
     return (
         <div class="size-full flex">
             <aside class="w-54 min-w-54 resize-x overflow-x-auto shadow flex flex-col">
@@ -241,12 +265,18 @@ export function Layout() {
                             {selectedFolder()!.name || ""}
                         </span>
                         <div class="shrink-0">
-                            <button class="btn btn-square btn-xs btn-ghost">
-                                <Icon icon={FilePlus} size="small" />
-                            </button>
-                            <button class="btn btn-square btn-xs btn-ghost">
+                            <CreateFileModal
+                                basePath={
+                                    basePath()
+                                }
+                                onSuccess={(path) => {
+                                    init();
+                                    handleFileClick(path);
+                                }}
+                            />
+                            {/* <button class="btn btn-square btn-xs btn-ghost">
                                 <Icon icon={FolderPlus} size="small" />
-                            </button>
+                            </button> */}
                             <button
                                 class="btn btn-square btn-xs btn-ghost"
                                 onClick={init}
