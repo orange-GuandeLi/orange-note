@@ -76,7 +76,7 @@ export function Tiptap(props: Props) {
             dirtyTimeoutId = setTimeout(() => {
                 const currentContent = editor.getMarkdown();
                 props.onFileDirty(currentContent !== props.content);
-            }, 500);
+            }, 200);
         },
         onBlur: ({ editor }) => {
             // 存储光标位置
