@@ -1,6 +1,6 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { BaseDirectory, DirEntry, exists, mkdir, readDir, readTextFile, writeFile } from "@tauri-apps/plugin-fs";
+import { DirEntry, exists, mkdir, readDir, readTextFile, writeFile } from "@tauri-apps/plugin-fs";
 
 export type OpenFile = {
     path: string;
