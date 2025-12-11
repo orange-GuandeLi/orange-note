@@ -74,7 +74,7 @@
     }
 
     img {
-        @apply block rounded-md;
+        @apply block rounded-md max-w-1/2;
     }
 
     [data-resize-handle] {
@@ -94,5 +94,9 @@
 
     blockquote {
         @apply border-l-4 border-base-200 my-4 pl-4;
+    }
+
+    mark {
+        @apply bg-secondary/50 text-secondary-content rounded box-decoration-break-clone py-1 px-2;
     }
 }

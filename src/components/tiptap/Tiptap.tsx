@@ -15,6 +15,17 @@ import { Placeholder, Dropcursor } from "@tiptap/extensions";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import Image from "@tiptap/extension-image";
 import BlockQuote from "@tiptap/extension-blockquote";
+import Bold from '@tiptap/extension-bold';
+import Highlight from '@tiptap/extension-highlight';
+import Italic from '@tiptap/extension-italic';
+import Link from '@tiptap/extension-link';
+import Strike from '@tiptap/extension-strike';
+import Subscript from '@tiptap/extension-subscript';
+import Superscript from '@tiptap/extension-superscript';
+import { TextStyleKit } from '@tiptap/extension-text-style';
+import Underline from '@tiptap/extension-underline';
+
+
 
 import "./tiptap.css";
 import { saveImage } from "../../functions";
@@ -78,6 +89,21 @@ export function Tiptap(props: Props) {
             }),
             Dropcursor,
             BlockQuote,
+            Bold,
+            Highlight,
+            Italic,
+            Link.configure({
+                HTMLAttributes: {
+                    class: "link link-primary",
+                },
+            }),
+            Strike,
+            Subscript,
+            Superscript,
+            TextStyleKit,
+            Underline,
+
+
 
             OrangeTaskItem,
             OrangeCodeBlock,
