@@ -69,11 +69,11 @@ export function Tiptap(props: Props) {
             Image.configure({
                 resize: {
                     enabled: true,
-                    directions: ['top', 'bottom', 'left', 'right'], // can be any direction or diagonal combination
+                    directions: ["top", "bottom", "left", "right"], // can be any direction or diagonal combination
                     minWidth: 50,
                     minHeight: 50,
                     alwaysPreserveAspectRatio: true,
-                }
+                },
             }),
             Dropcursor,
 
@@ -91,29 +91,33 @@ export function Tiptap(props: Props) {
                     return false;
                 }
                 for (const item of items) {
-                    if (item.type.indexOf('image') !== -1) {
-                    // 1. 发现是图片，拦截默认粘贴行为
-                    event.preventDefault();
+                    if (item.type.indexOf("image") !== -1) {
+                        // 1. 发现是图片，拦截默认粘贴行为
+                        event.preventDefault();
 
-                    const file = item.getAsFile();
-                    if (file) {
-                        // 2. 执行你的存储逻辑（例如上传到服务器）
-                        try {
-                            saveImage(file, props.basePath).then((imageUrl) => {
-                                view.dispatch(
-                                    view.state.tr.replaceSelectionWith(
-                                    view.state.schema.nodes.image.create({ src: imageUrl })
-                                    )
+                        const file = item.getAsFile();
+                        if (file) {
+                            // 2. 执行你的存储逻辑（例如上传到服务器）
+                            try {
+                                saveImage(file, props.basePath).then(
+                                    (imageUrl) => {
+                                        view.dispatch(
+                                            view.state.tr.replaceSelectionWith(
+                                                view.state.schema.nodes.image.create(
+                                                    { src: imageUrl },
+                                                ),
+                                            ),
+                                        );
+                                    },
                                 );
-                            });
-                        } catch (e) {
-                            console.error(e);
-                            toast.error(
-                                `Failed to save image ${file.name}`,
-                            );
+                            } catch (e) {
+                                console.error(e);
+                                toast.error(
+                                    `Failed to save image ${file.name}`,
+                                );
+                            }
                         }
-                    }
-                    return true; // 表示已处理
+                        return true; // 表示已处理
                     }
                 }
                 return false; // 非图片，交给 Tiptap 默认处理

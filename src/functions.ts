@@ -1,6 +1,13 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { DirEntry, exists, mkdir, readDir, readTextFile, writeFile } from "@tauri-apps/plugin-fs";
+import {
+    DirEntry,
+    exists,
+    mkdir,
+    readDir,
+    readTextFile,
+    writeFile,
+} from "@tauri-apps/plugin-fs";
 
 export type OpenFile = {
     path: string;
@@ -68,17 +75,7 @@ export async function getFolderContent(folderPath: string) {
             name: getFileName(folderPath),
             path: folderPath,
             // 文件夹在前，文件在后，同时文件以字典序排序
-            children: files.sort((a, b) => {
-                // 文件夹在前，文件在后
-                if (a.isDirectory && !b.isDirectory) {
-                    return -1;
-                }
-                if (!a.isDirectory && b.isDirectory) {
-                    return 1;
-                }
-                // 字典序排序
-                return a.name.localeCompare(b.name) ? -1 : 1;
-            }),
+            children: files,
         };
     } catch (e2) {
         console.error(`Failed to read ${folderPath} as a directory`, e2);
@@ -111,7 +108,7 @@ async function readDirRecursively(
                 return (
                     extension === "md" ||
                     extension === "markdown" ||
-                    item.isDirectory
+                    (item.isDirectory && item.name !== "OrangeNote-images")
                 );
             })
             .sort((a, b) => {
@@ -121,7 +118,7 @@ async function readDirRecursively(
                 if (!a.isDirectory && b.isDirectory) {
                     return 1;
                 }
-                return 0;
+                return a.name.localeCompare(b.name) ? -1 : 1;
             });
     } catch (e2) {
         console.error(`Failed to read ${folderPath} as a directory`, e2);
@@ -145,7 +142,7 @@ export async function saveImage(file: File, path: string) {
     const imageDir = `${path}/OrangeNote-images`;
     const imagePath = `${imageDir}/${crypto.randomUUID()}-${file.name}`;
     // 判断是否存在文件夹
-    if (!await exists(imageDir)) {
+    if (!(await exists(imageDir))) {
         await mkdir(imageDir, { recursive: true });
     }
     await writeFile(imagePath, new Uint8Array(await file.arrayBuffer()));

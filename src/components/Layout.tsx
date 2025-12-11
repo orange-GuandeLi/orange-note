@@ -119,11 +119,11 @@ export function Layout() {
         }
     });
 
-    const  openFolder = async (path: string) => {
+    const openFolder = async (path: string) => {
         // open folder
         const folder = await getFolderContent(path);
         setSelectedFolder(folder);
-    }
+    };
 
     const setOpendFilesOrderData = (order: string[]) => {
         opendFilesOrder = order;
