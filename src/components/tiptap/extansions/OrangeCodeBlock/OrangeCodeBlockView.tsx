@@ -1,8 +1,9 @@
-import { ChevronDown } from "lucide-solid";
+import { ChevronDown, Copy } from "lucide-solid";
 import { Icon } from "../../../Icon";
 import { SolidNodeViewRendererProps } from "../../../SolidNodeView";
 import { CodeBlockLanguages } from "./OrangeCodeBlock";
 import { createMemo } from "solid-js";
+import toast from "solid-toast";
 
 export function OrangeCodeBlockView(props: SolidNodeViewRendererProps) {
     const language = createMemo(
@@ -18,6 +19,19 @@ export function OrangeCodeBlockView(props: SolidNodeViewRendererProps) {
                 ref={props.contentRef}
                 class={`language-${props.node.attrs.language} bg-transparent`}
             ></code>
+            <div class="absolute -top-8 left-0 flex items-center gap-2">
+                <button
+                    class="btn btn-xs btn-primary btn-ghost"
+                    onClick={() => {
+                        navigator.clipboard.writeText(props.node.textContent || "").then(() => {
+                            toast.success("Code copied to clipboard");
+                        });
+                    }}
+                >
+                    <Icon icon={Copy} size="small" />
+                    Copy
+                </button>
+            </div>
             <div
                 contentEditable={false}
                 class="absolute -top-8 right-0 flex items-center gap-2"

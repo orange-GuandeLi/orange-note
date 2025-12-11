@@ -91,6 +91,10 @@
             @apply w-1 cursor-ew-resize;
         }
     }
+    
+    pre {
+        @apply whitespace-pre-wrap;
+    }
 
     blockquote {
         @apply border-l-4 border-base-300 my-4 pl-4;
