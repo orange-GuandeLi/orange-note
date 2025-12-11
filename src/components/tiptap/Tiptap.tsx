@@ -14,6 +14,7 @@ import Heading from "@tiptap/extension-heading";
 import { Placeholder, Dropcursor } from "@tiptap/extensions";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import Image from "@tiptap/extension-image";
+import BlockQuote from "@tiptap/extension-blockquote";
 
 import "./tiptap.css";
 import { saveImage } from "../../functions";
@@ -76,6 +77,7 @@ export function Tiptap(props: Props) {
                 },
             }),
             Dropcursor,
+            BlockQuote,
 
             OrangeTaskItem,
             OrangeCodeBlock,
