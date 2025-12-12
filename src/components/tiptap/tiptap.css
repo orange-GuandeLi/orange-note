@@ -73,6 +73,17 @@
         }
     }
 
+    ul[data-type="language-switch"] {
+        @apply p-2;
+        
+        & li {
+            @apply p-0;
+            &::before {
+                content: "";
+            }
+        }
+    }
+
     img {
         @apply block rounded-md;
     }

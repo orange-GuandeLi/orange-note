@@ -47,6 +47,7 @@ export function OrangeCodeBlockView(props: SolidNodeViewRendererProps) {
                     <ul
                         tabIndex="-1"
                         class="dropdown-content menu menu-xs rounded-sm bg-neutral rounded-box z-1 p-2 shadow-sm text-neutral-content"
+                        data-type="language-switch"
                     >
                         {CodeBlockLanguages.map((lang) => (
                             <li
