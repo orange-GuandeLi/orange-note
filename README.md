@@ -3,6 +3,7 @@
 - [x] Text
 - [x] Markdown
 - [x] Headding
-- [x] TaskList
-- [x] TaskItem
+- [x] Lists
 - [x] History
+- [x] Marks
+- [x] Image
