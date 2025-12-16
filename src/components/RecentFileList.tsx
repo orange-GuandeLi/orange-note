@@ -19,7 +19,7 @@ export function RecentFileList(props: Props) {
                     </p>
                 }
             >
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1 items-start">
                     <p class="text-lg">Recent Files:</p>
                     <For each={props.recentFiles}>
                         {(file) => (

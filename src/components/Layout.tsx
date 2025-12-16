@@ -1,4 +1,4 @@
-import { RotateCcw, X } from "lucide-solid";
+import { FolderOpen, RotateCcw, X } from "lucide-solid";
 import { FileList } from "./FileList";
 import { Icon } from "./Icon";
 import { RecentFileList } from "./RecentFileList";
@@ -25,6 +25,7 @@ import toast from "solid-toast";
 import { Tiptap } from "./tiptap/Tiptap";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { CreateFileModal } from "./CreateFileModal";
+import { Theme } from "./Theme";
 
 export function Layout() {
     onMount(() => {
@@ -172,6 +173,11 @@ export function Layout() {
             readFolder().then((folder) => {
                 if (folder) {
                     setSelectedFolder(folder);
+                    // 重置
+                    setOpendFilesOrderData([]);
+                    // 重置当前文件
+                    setCurrentFile(undefined);
+                    setOpendFiles([]);
                 }
             });
         } catch {
@@ -270,6 +276,12 @@ export function Layout() {
                             {selectedFolder()!.name || ""}
                         </span>
                         <div class="shrink-0">
+                            <button
+                                class="btn btn-square btn-xs btn-ghost"
+                                onclick={handleOpenFolder}
+                            >
+                                <Icon icon={FolderOpen} size="small" />
+                            </button>
                             <CreateFileModal
                                 basePath={basePath()}
                                 onSuccess={async (path) => {
@@ -296,6 +308,9 @@ export function Layout() {
                             onFileClick={handleFileClick}
                             currentFilePath={currentFile()?.path}
                         />
+                    </div>
+                    <div class="p-2 flex justify-end">
+                        <Theme />
                     </div>
                 </Show>
             </aside>

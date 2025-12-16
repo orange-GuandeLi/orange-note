@@ -48,13 +48,13 @@ export function Theme() {
     };
 
     return (
-        <div class="dropdown dropdown-end p-0">
+        <div class="dropdown dropdown-top dropdown-left p-0">
             <button
                 tabIndex={0}
                 role="button"
-                class="btn btn-outline btn-primary"
+                class="btn btn-ghost btn-xs btn-square"
             >
-                <Icon icon={Palette} /> Theme
+                <Icon icon={Palette} />
             </button>
             <ul
                 tabIndex={0}
@@ -66,7 +66,7 @@ export function Theme() {
                             <input
                                 type="radio"
                                 name="theme-buttons"
-                                class="btn theme-controller btn-sm btn-ghost"
+                                class="btn theme-controller btn-xs btn-ghost"
                                 aria-label={item}
                                 value={item}
                                 onChange={onThemeChange}
