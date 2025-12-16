@@ -23,9 +23,11 @@ export function OrangeCodeBlockView(props: SolidNodeViewRendererProps) {
                 <button
                     class="btn btn-xs btn-primary btn-ghost"
                     onClick={() => {
-                        navigator.clipboard.writeText(props.node.textContent || "").then(() => {
-                            toast.success("Code copied to clipboard");
-                        });
+                        navigator.clipboard
+                            .writeText(props.node.textContent || "")
+                            .then(() => {
+                                toast.success("Code copied to clipboard");
+                            });
                     }}
                 >
                     <Icon icon={Copy} size="small" />

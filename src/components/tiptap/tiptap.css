@@ -75,7 +75,7 @@
 
     ul[data-type="language-switch"] {
         @apply p-2;
-        
+
         & li {
             @apply p-0;
             &::before {
@@ -102,7 +102,7 @@
             @apply w-1 cursor-ew-resize;
         }
     }
-    
+
     pre {
         @apply whitespace-pre-wrap;
     }
