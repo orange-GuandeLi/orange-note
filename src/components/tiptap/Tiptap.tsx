@@ -1,11 +1,11 @@
 import { createTiptapEditor } from "solid-tiptap";
-import { createEffect, onCleanup, onMount } from "solid-js";
+import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
 import { Markdown } from "@tiptap/markdown";
 import { ListKit } from "@tiptap/extension-list";
-import History from "@tiptap/extension-history";
+import { UndoRedo } from '@tiptap/extensions/undo-redo';
 import { OrangeTaskItem } from "./extansions/OrangeTaskItem/OrangeTaskItem";
 import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
 import Typography from "@tiptap/extension-typography";
@@ -28,6 +28,8 @@ import Underline from "@tiptap/extension-underline";
 import "./tiptap.css";
 import { saveImage } from "../../functions";
 import toast from "solid-toast";
+import { Icon } from "../Icon";
+import { Redo2Icon, Undo2Icon } from "lucide-solid";
 
 type Props = {
     content: string;
@@ -40,8 +42,10 @@ type Props = {
 export function Tiptap(props: Props) {
     let editorRef: HTMLDivElement | undefined;
     let dirtyTimeoutId: number | undefined;
-    let cursorPosition: number | undefined;
     let originalContent = props.content;
+    let focused = false;
+    const [canUndo, setCanUndo] = createSignal(false);
+    const [canRedo, setCanRedo] = createSignal(false);
 
     const editor = createTiptapEditor(() => ({
         element: editorRef!,
@@ -56,7 +60,10 @@ export function Tiptap(props: Props) {
             ListKit.configure({
                 taskItem: false,
             }),
-            History,
+            UndoRedo.configure({
+                depth: 100,
+            }),
+            
             Code.configure({
                 HTMLAttributes: {
                     class: "bg-base-200 px-1 rounded text-xs",
@@ -157,32 +164,25 @@ export function Tiptap(props: Props) {
             dirtyTimeoutId = setTimeout(() => {
                 const currentContent = editor.getMarkdown();
                 props.onFileDirty(currentContent !== props.content);
+                setCanUndo(editor?.can().undo());
+                setCanRedo(editor?.can().redo());
             }, 200);
+            
         },
-        onBlur: ({ editor }) => {
-            // 存储光标位置
-            const selection = editor.state.selection;
-            if (selection) {
-                cursorPosition = selection.$anchor.pos;
-            }
-        },
-        onFocus: ({ editor }) => {
-            // 恢复光标位置
-            if (cursorPosition) {
-                editor?.commands.setTextSelection(cursorPosition);
-            } else if (!cursorPosition && !props.content) {
-                editor?.commands.setTextSelection(0);
-            }
+        onFocus: () => {
+            focused = true;
         },
     }));
 
-    createEffect(() => {
-        if (props.active && (cursorPosition || !props.content)) {
-            setTimeout(() => {
-                editor()?.commands.focus();
-            }, 0);
-        }
-    });
+    createEffect(
+        on(() => props.active, (active) => {
+            if (active && focused) {
+                setTimeout(() => {
+                    editor()?.chain().focus();
+                }, 0);
+            }
+        })
+    );
 
     const handleKeyDown = async (e: KeyboardEvent) => {
         if ((e.metaKey || e.ctrlKey) && e.key === "s") {
@@ -202,19 +202,32 @@ export function Tiptap(props: Props) {
         editor()?.destroy();
     });
 
+    const undo = () => editor()?.chain().focus().undo().run();
+    const redo = () => editor()?.chain().focus().redo().run();
+
     return (
         <div
-            class="size-full px-6 py-2"
+            class="size-full px-6 relative"
             classList={{
                 block: props.active,
                 hidden: !props.active,
             }}
         >
-            <article
-                id="editor"
-                class="size-full overflow-auto"
-                ref={editorRef}
-            ></article>
+            <div class="pt-2 rounded pb-96 size-full overflow-auto">
+                <article
+                    id="editor"
+                    class=""
+                    ref={editorRef}
+                ></article>
+            </div>
+            <div class="px-2 py-0.5 absolute bottom-2 left-1/2 -translate-x-1/2 shadow-md rounded">
+                <button class="btn btn-square btn-ghost btn-sm" disabled={!canUndo()}  onclick={undo}>
+                    <Icon icon={Undo2Icon} />
+                </button>
+                <button class="btn btn-square btn-ghost btn-sm" disabled={!canRedo()}  onclick={redo}>
+                    <Icon icon={Redo2Icon} />
+                </button>
+            </div>
         </div>
     );
 }
