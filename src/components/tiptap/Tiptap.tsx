@@ -1,5 +1,5 @@
 import { createTiptapEditor } from "solid-tiptap";
-import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
+import { createEffect, on, onCleanup, onMount } from "solid-js";
 import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -29,7 +29,8 @@ import "./tiptap.css";
 import { saveImage } from "../../functions";
 import toast from "solid-toast";
 import { Icon } from "../Icon";
-import { Redo2Icon, Undo2Icon } from "lucide-solid";
+import { BoldIcon, Redo2Icon, Undo2Icon } from "lucide-solid";
+import { createStore } from "solid-js/store";
 
 type Props = {
     content: string;
@@ -40,12 +41,19 @@ type Props = {
 };
 
 export function Tiptap(props: Props) {
+    let rafId: number | undefined;
     let editorRef: HTMLDivElement | undefined;
     let dirtyTimeoutId: number | undefined;
     let originalContent = props.content;
     let focused = false;
-    const [canUndo, setCanUndo] = createSignal(false);
-    const [canRedo, setCanRedo] = createSignal(false);
+
+    const [editState, setEditState] = createStore({
+        canUndo: false,
+        canRedo: false,
+        isBold: false,
+        canSetBold: false,
+    });
+    
 
     const editor = createTiptapEditor(() => ({
         element: editorRef!,
@@ -156,6 +164,16 @@ export function Tiptap(props: Props) {
         },
         onMount: ({ editor }) => {
             originalContent = editor.getMarkdown();
+            editorRef?.addEventListener("keydown", handleKeyDown);
+        },
+        onDestroy: () => {
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+            }
+            if (dirtyTimeoutId) {
+                clearTimeout(dirtyTimeoutId);
+            }
+            editorRef?.removeEventListener("keydown", handleKeyDown);
         },
         onUpdate: ({ editor }) => {
             if (dirtyTimeoutId) {
@@ -164,13 +182,24 @@ export function Tiptap(props: Props) {
             dirtyTimeoutId = setTimeout(() => {
                 const currentContent = editor.getMarkdown();
                 props.onFileDirty(currentContent !== props.content);
-                setCanUndo(editor?.can().undo());
-                setCanRedo(editor?.can().redo());
             }, 200);
-            
         },
         onFocus: () => {
             focused = true;
+        },
+        onTransaction: ({ editor }) => {
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+            }
+
+            rafId = requestAnimationFrame(() => {
+                setEditState({
+                    canUndo: editor.can().undo(),
+                    canRedo: editor.can().redo(),
+                    isBold: editor.isActive("bold"),
+                    canSetBold: editor.can().setBold(),
+                });
+            });
         },
     }));
 
@@ -193,17 +222,15 @@ export function Tiptap(props: Props) {
         }
     };
 
-    onMount(() => {
-        editorRef?.addEventListener("keydown", handleKeyDown);
-    });
-
     onCleanup(() => {
-        editorRef?.removeEventListener("keydown", handleKeyDown);
         editor()?.destroy();
     });
 
     const undo = () => editor()?.chain().focus().undo().run();
     const redo = () => editor()?.chain().focus().redo().run();
+    const toggleBold = () => {
+        editor()?.chain().focus().toggleBold().run();
+    };
 
     return (
         <div
@@ -216,16 +243,25 @@ export function Tiptap(props: Props) {
             <div class="pt-2 rounded pb-96 size-full overflow-auto">
                 <article
                     id="editor"
-                    class=""
                     ref={editorRef}
                 ></article>
             </div>
-            <div class="px-2 py-0.5 absolute bottom-2 left-1/2 -translate-x-1/2 shadow-md rounded">
-                <button class="btn btn-square btn-ghost btn-sm" disabled={!canUndo()}  onclick={undo}>
+            <div class="px-2 py-0.5 absolute bottom-2 left-1/2 -translate-x-1/2 shadow-md rounded flex flex-nowrap overflow-x-auto gap-1">
+                <button class="btn btn-square btn-ghost btn-sm" disabled={!editState.canUndo}  onclick={undo}>
                     <Icon icon={Undo2Icon} />
                 </button>
-                <button class="btn btn-square btn-ghost btn-sm" disabled={!canRedo()}  onclick={redo}>
+                <button class="btn btn-square btn-ghost btn-sm" disabled={!editState.canRedo}  onclick={redo}>
                     <Icon icon={Redo2Icon} />
+                </button>
+                <div class="w-0.5 h-4 bg-base-200 rounded mx-1 my-auto"></div>
+                <button
+                    class="btn btn-square btn-ghost btn-sm" onclick={toggleBold}
+                    disabled={!editState.canSetBold}
+                    classList={{
+                        "btn-active btn-primary": editState.isBold,
+                    }}
+                >
+                    <Icon icon={BoldIcon} />
                 </button>
             </div>
         </div>
