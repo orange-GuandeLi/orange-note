@@ -1,5 +1,5 @@
 import { createTiptapEditor } from "solid-tiptap";
-import { createEffect, on, onCleanup, onMount } from "solid-js";
+import { createEffect, on, onCleanup } from "solid-js";
 import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -29,7 +29,7 @@ import "./tiptap.css";
 import { saveImage } from "../../functions";
 import toast from "solid-toast";
 import { Icon } from "../Icon";
-import { BoldIcon, Redo2Icon, Undo2Icon } from "lucide-solid";
+import { BoldIcon, ItalicIcon, Redo2Icon, Undo2Icon } from "lucide-solid";
 import { createStore } from "solid-js/store";
 
 type Props = {
@@ -52,6 +52,8 @@ export function Tiptap(props: Props) {
         canRedo: false,
         isBold: false,
         canSetBold: false,
+        isItalic: false,
+        canSetItalic: false,
     });
     
 
@@ -198,6 +200,8 @@ export function Tiptap(props: Props) {
                     canRedo: editor.can().redo(),
                     isBold: editor.isActive("bold"),
                     canSetBold: editor.can().setBold(),
+                    isItalic: editor.isActive("italic"),
+                    canSetItalic: editor.can().setItalic(),
                 });
             });
         },
@@ -228,9 +232,8 @@ export function Tiptap(props: Props) {
 
     const undo = () => editor()?.chain().focus().undo().run();
     const redo = () => editor()?.chain().focus().redo().run();
-    const toggleBold = () => {
-        editor()?.chain().focus().toggleBold().run();
-    };
+    const toggleBold = () => editor()?.chain().focus().toggleBold().run();
+    const toggleItalic = () => editor()?.chain().focus().toggleItalic().run();
 
     return (
         <div
@@ -262,6 +265,15 @@ export function Tiptap(props: Props) {
                     }}
                 >
                     <Icon icon={BoldIcon} />
+                </button>
+                <button
+                    class="btn btn-square btn-ghost btn-sm" onclick={toggleItalic}
+                    disabled={!editState.canSetItalic}
+                    classList={{
+                        "btn-active btn-primary": editState.isItalic,
+                    }}
+                >
+                    <Icon icon={ItalicIcon} />
                 </button>
             </div>
         </div>
