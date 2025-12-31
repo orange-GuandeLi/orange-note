@@ -29,7 +29,7 @@ import "./tiptap.css";
 import { saveImage } from "../../functions";
 import toast from "solid-toast";
 import { Icon } from "../Icon";
-import { BoldIcon, ItalicIcon, Redo2Icon, Undo2Icon } from "lucide-solid";
+import { BoldIcon, CodeXml, ItalicIcon, Redo2Icon, Strikethrough, UnderlineIcon, Undo2Icon } from "lucide-solid";
 import { createStore } from "solid-js/store";
 
 type Props = {
@@ -54,6 +54,12 @@ export function Tiptap(props: Props) {
         canSetBold: false,
         isItalic: false,
         canSetItalic: false,
+        isStrike: false,
+        canSetStrike: false,
+        isCode: false,
+        canSetCode: false,
+        isUnderline: false,
+        canSetUnderline: false,
     });
     
 
@@ -202,6 +208,12 @@ export function Tiptap(props: Props) {
                     canSetBold: editor.can().setBold(),
                     isItalic: editor.isActive("italic"),
                     canSetItalic: editor.can().setItalic(),
+                    isStrike: editor.isActive("strike"),
+                    canSetStrike: editor.can().setStrike(),
+                    isCode: editor.isActive("code"),
+                    canSetCode: editor.can().setCode(),
+                    isUnderline: editor.isActive("underline"),
+                    canSetUnderline: editor.can().setUnderline(),
                 });
             });
         },
@@ -234,6 +246,9 @@ export function Tiptap(props: Props) {
     const redo = () => editor()?.chain().focus().redo().run();
     const toggleBold = () => editor()?.chain().focus().toggleBold().run();
     const toggleItalic = () => editor()?.chain().focus().toggleItalic().run();
+    const toggleStrike = () => editor()?.chain().focus().toggleStrike().run();
+    const toggleCode = () => editor()?.chain().focus().toggleCode().run();
+    const toggleUnderline = () => editor()?.chain().focus().toggleUnderline().run();
 
     return (
         <div
@@ -249,7 +264,7 @@ export function Tiptap(props: Props) {
                     ref={editorRef}
                 ></article>
             </div>
-            <div class="px-2 py-0.5 absolute bottom-2 left-1/2 -translate-x-1/2 shadow-md rounded flex flex-nowrap overflow-x-auto gap-1">
+            <div class="px-2 py-0.5 absolute bottom-2 left-1/2 -translate-x-1/2 shadow-md rounded flex flex-nowrap overflow-x-auto gap-1 bg-base-100">
                 <button class="btn btn-square btn-ghost btn-sm" disabled={!editState.canUndo}  onclick={undo}>
                     <Icon icon={Undo2Icon} />
                 </button>
@@ -274,6 +289,33 @@ export function Tiptap(props: Props) {
                     }}
                 >
                     <Icon icon={ItalicIcon} />
+                </button>
+                <button
+                    class="btn btn-square btn-ghost btn-sm" onclick={toggleStrike}
+                    disabled={!editState.canSetStrike}
+                    classList={{
+                        "btn-active btn-primary": editState.isItalic,
+                    }}
+                >
+                    <Icon icon={Strikethrough} />
+                </button>
+                <button
+                    class="btn btn-square btn-ghost btn-sm" onclick={toggleCode}
+                    disabled={!editState.canSetCode}
+                    classList={{
+                        "btn-active btn-primary": editState.isCode,
+                    }}
+                >
+                    <Icon icon={CodeXml} />
+                </button>
+                <button
+                    class="btn btn-square btn-ghost btn-sm" onclick={toggleUnderline}
+                    disabled={!editState.canSetUnderline}
+                    classList={{
+                        "btn-active btn-primary": editState.isUnderline,
+                    }}
+                >
+                    <Icon icon={UnderlineIcon} />
                 </button>
             </div>
         </div>
