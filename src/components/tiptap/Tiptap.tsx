@@ -5,7 +5,7 @@ import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
 import { Markdown } from "@tiptap/markdown";
 import { ListKit } from "@tiptap/extension-list";
-import { UndoRedo } from '@tiptap/extensions/undo-redo';
+import { UndoRedo } from "@tiptap/extensions/undo-redo";
 import { OrangeTaskItem } from "./extansions/OrangeTaskItem/OrangeTaskItem";
 import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
 import Typography from "@tiptap/extension-typography";
@@ -29,8 +29,23 @@ import "./tiptap.css";
 import { saveImage } from "../../functions";
 import toast from "solid-toast";
 import { Icon } from "../Icon";
-import { BoldIcon, CheckIcon, CodeXml, ItalicIcon, LinkIcon, PaintBucket, Redo2Icon, Strikethrough, UnderlineIcon, Undo2Icon, X } from "lucide-solid";
+import {
+    BoldIcon,
+    CheckIcon,
+    CodeXml,
+    ItalicIcon,
+    LinkIcon,
+    PaintBucket,
+    Redo2Icon,
+    Strikethrough,
+    SuperscriptIcon,
+    UnderlineIcon,
+    Undo2Icon,
+    X,
+} from "lucide-solid";
 import { createStore } from "solid-js/store";
+import { ToolButton } from "./components/ToolButton";
+import { ToolDivider } from "./components/ToolDivider";
 
 type Props = {
     content: string;
@@ -46,7 +61,7 @@ export function Tiptap(props: Props) {
     let dirtyTimeoutId: number | undefined;
     let originalContent = props.content;
     let focused = false;
-    
+
     const [tempLink, setTempLink] = createSignal("");
 
     const [editState, setEditState] = createStore<{
@@ -66,6 +81,8 @@ export function Tiptap(props: Props) {
         canSetHighlight: boolean;
         isLink: boolean;
         canSetLink: (link: string) => boolean;
+        isSuperscript: boolean;
+        canSetSuperscript: boolean;
     }>({
         canUndo: false,
         canRedo: false,
@@ -83,8 +100,9 @@ export function Tiptap(props: Props) {
         canSetHighlight: false,
         isLink: false,
         canSetLink: () => false,
+        isSuperscript: false,
+        canSetSuperscript: false,
     });
-    
 
     const editor = createTiptapEditor(() => ({
         element: editorRef!,
@@ -102,7 +120,7 @@ export function Tiptap(props: Props) {
             UndoRedo.configure({
                 depth: 100,
             }),
-            
+
             Code.configure({
                 HTMLAttributes: {
                     class: "bg-base-200 px-1 rounded text-xs",
@@ -241,6 +259,8 @@ export function Tiptap(props: Props) {
                     canSetHighlight: editor.can().setHighlight(),
                     isLink: editor.isActive("link"),
                     canSetLink: (link) => editor.can().setLink({ href: link }),
+                    isSuperscript: editor.isActive("superscript"),
+                    canSetSuperscript: editor.can().setSuperscript(),
                 });
                 setTempLink(editor.getAttributes("link").href || "");
             });
@@ -248,13 +268,16 @@ export function Tiptap(props: Props) {
     }));
 
     createEffect(
-        on(() => props.active, (active) => {
-            if (active && focused) {
-                setTimeout(() => {
-                    editor()?.chain().focus();
-                }, 0);
-            }
-        })
+        on(
+            () => props.active,
+            (active) => {
+                if (active && focused) {
+                    setTimeout(() => {
+                        editor()?.chain().focus();
+                    }, 0);
+                }
+            },
+        ),
     );
 
     const handleKeyDown = async (e: KeyboardEvent) => {
@@ -276,10 +299,15 @@ export function Tiptap(props: Props) {
     const toggleItalic = () => editor()?.chain().focus().toggleItalic().run();
     const toggleStrike = () => editor()?.chain().focus().toggleStrike().run();
     const toggleCode = () => editor()?.chain().focus().toggleCode().run();
-    const toggleUnderline = () => editor()?.chain().focus().toggleUnderline().run();
-    const toggleHighlight = () => editor()?.chain().focus().toggleHighlight().run();
-    const setLink = (link: string) => editor()?.chain().focus().setLink({ href: link }).run();
+    const toggleUnderline = () =>
+        editor()?.chain().focus().toggleUnderline().run();
+    const toggleHighlight = () =>
+        editor()?.chain().focus().toggleHighlight().run();
+    const setLink = (link: string) =>
+        editor()?.chain().focus().setLink({ href: link }).run();
     const unSetLink = () => editor()?.chain().focus().unsetLink().run();
+    const toggleSuperscript = () =>
+        editor()?.chain().focus().toggleSuperscript().run();
 
     return (
         <div
@@ -290,78 +318,70 @@ export function Tiptap(props: Props) {
             }}
         >
             <div class="pt-2 rounded pb-96 size-full overflow-auto">
-                <article
-                    id="editor"
-                    ref={editorRef}
-                ></article>
+                <article id="editor" ref={editorRef}></article>
             </div>
             <div class="px-2 py-0.5 absolute bottom-2 left-1/2 -translate-x-1/2 shadow-md rounded flex flex-nowrap gap-1 bg-base-100">
-                <button class="btn btn-square btn-ghost btn-sm" disabled={!editState.canUndo}  onclick={undo}>
-                    <Icon icon={Undo2Icon} />
-                </button>
-                <button class="btn btn-square btn-ghost btn-sm" disabled={!editState.canRedo}  onclick={redo}>
-                    <Icon icon={Redo2Icon} />
-                </button>
-                <div class="w-0.5 h-4 bg-base-200 rounded mx-1 my-auto"></div>
-                <button
-                    class="btn btn-square btn-ghost btn-sm" onclick={toggleBold}
+                <ToolButton
+                    icon={Undo2Icon}
+                    disabled={!editState.canUndo}
+                    onClick={undo}
+                    tooltip="command + z"
+                />
+                <ToolButton
+                    icon={Redo2Icon}
+                    disabled={!editState.canRedo}
+                    onClick={redo}
+                    tooltip="command + shift + z"
+                />
+                <ToolDivider />
+                <ToolButton
+                    icon={BoldIcon}
                     disabled={!editState.canSetBold}
-                    classList={{
-                        "btn-active btn-primary": editState.isBold,
-                    }}
-                >
-                    <Icon icon={BoldIcon} />
-                </button>
-                <button
-                    class="btn btn-square btn-ghost btn-sm" onclick={toggleItalic}
+                    onClick={toggleBold}
+                    tooltip="command + b"
+                    active={editState.isBold}
+                />
+                <ToolButton
+                    icon={ItalicIcon}
                     disabled={!editState.canSetItalic}
-                    classList={{
-                        "btn-active btn-primary": editState.isItalic,
-                    }}
-                >
-                    <Icon icon={ItalicIcon} />
-                </button>
-                <button
-                    class="btn btn-square btn-ghost btn-sm" onclick={toggleStrike}
+                    onClick={toggleItalic}
+                    tooltip="command + i"
+                    active={editState.isItalic}
+                />
+                <ToolButton
+                    icon={Strikethrough}
                     disabled={!editState.canSetStrike}
-                    classList={{
-                        "btn-active btn-primary": editState.isItalic,
-                    }}
-                >
-                    <Icon icon={Strikethrough} />
-                </button>
-                <button
-                    class="btn btn-square btn-ghost btn-sm" onclick={toggleCode}
+                    onClick={toggleStrike}
+                    tooltip="command + shift + s"
+                    active={editState.isStrike}
+                />
+                <ToolButton
+                    icon={CodeXml}
                     disabled={!editState.canSetCode}
-                    classList={{
-                        "btn-active btn-primary": editState.isCode,
-                    }}
-                >
-                    <Icon icon={CodeXml} />
-                </button>
-                <button
-                    class="btn btn-square btn-ghost btn-sm" onclick={toggleUnderline}
+                    onClick={toggleCode}
+                    tooltip="command + e"
+                    active={editState.isCode}
+                />
+                <ToolButton
+                    icon={UnderlineIcon}
                     disabled={!editState.canSetUnderline}
-                    classList={{
-                        "btn-active btn-primary": editState.isUnderline,
-                    }}
-                >
-                    <Icon icon={UnderlineIcon} />
-                </button>
-                <button
-                    class="btn btn-square btn-ghost btn-sm" onclick={toggleHighlight}
+                    onClick={toggleUnderline}
+                    tooltip="command + u"
+                    active={editState.isUnderline}
+                />
+                <ToolButton
+                    icon={PaintBucket}
                     disabled={!editState.canSetHighlight}
-                    classList={{
-                        "btn-active btn-primary": editState.isHighlight,
-                    }}
-                >
-                    <Icon icon={PaintBucket} />
-                </button>
+                    onClick={toggleHighlight}
+                    tooltip="command + h"
+                    active={editState.isHighlight}
+                />
                 <div
                     class="dropdown dropdown-top dropdown-center"
                     classList={{
                         "dropdown-open": editState.isLink,
-                    }}>
+                    }}
+                >
                     <div
                         tabIndex={0}
                         role="button"
@@ -369,10 +389,14 @@ export function Tiptap(props: Props) {
                         classList={{
                             "btn-active btn-primary": editState.isLink,
                             "btn-disabled": !editState.canSetLink(tempLink()),
-                        }}>
+                        }}
+                    >
                         <Icon icon={LinkIcon} />
                     </div>
-                    <div tabIndex="-1" class="dropdown-content menu menu-sm bg-base-100 rounded-box z-1 w-72 p-2 shadow-sm">
+                    <div
+                        tabIndex="-1"
+                        class="dropdown-content menu menu-sm bg-base-100 rounded-box z-1 w-72 p-2 shadow-sm"
+                    >
                         <div class="flex items-center gap-1">
                             <input
                                 type="text"
@@ -382,15 +406,29 @@ export function Tiptap(props: Props) {
                                 oninput={(e) => setTempLink(e.target.value)}
                             />
                             <div class="w-0.5 h-4 bg-base-200 rounded mx-1 my-auto"></div>
-                            <button class="btn btn-square btn-ghost btn-sm" onclick={() => setLink(tempLink())}>
+                            <button
+                                class="btn btn-square btn-ghost btn-sm"
+                                onclick={() => setLink(tempLink())}
+                            >
                                 <Icon icon={CheckIcon} />
                             </button>
-                            <button class="btn btn-square btn-ghost btn-sm" onclick={() => unSetLink()}>
+                            <button
+                                class="btn btn-square btn-ghost btn-sm"
+                                onclick={() => unSetLink()}
+                            >
                                 <Icon icon={X} />
                             </button>
                         </div>
                     </div>
                 </div>
+                <ToolDivider />
+                <ToolButton
+                    icon={SuperscriptIcon}
+                    disabled={!editState.canSetSuperscript}
+                    onClick={toggleSuperscript}
+                    tooltip="command + ."
+                    active={editState.isSuperscript}
+                />
             </div>
         </div>
     );
