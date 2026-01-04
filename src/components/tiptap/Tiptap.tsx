@@ -1,5 +1,5 @@
 import { createTiptapEditor } from "solid-tiptap";
-import { createEffect, on, onCleanup } from "solid-js";
+import { createEffect, createSignal, on, onCleanup } from "solid-js";
 import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -29,7 +29,7 @@ import "./tiptap.css";
 import { saveImage } from "../../functions";
 import toast from "solid-toast";
 import { Icon } from "../Icon";
-import { BoldIcon, CodeXml, ItalicIcon, Redo2Icon, Strikethrough, UnderlineIcon, Undo2Icon } from "lucide-solid";
+import { BoldIcon, CheckIcon, CodeXml, ItalicIcon, LinkIcon, PaintBucket, Redo2Icon, Strikethrough, UnderlineIcon, Undo2Icon, X } from "lucide-solid";
 import { createStore } from "solid-js/store";
 
 type Props = {
@@ -46,8 +46,27 @@ export function Tiptap(props: Props) {
     let dirtyTimeoutId: number | undefined;
     let originalContent = props.content;
     let focused = false;
+    
+    const [tempLink, setTempLink] = createSignal("");
 
-    const [editState, setEditState] = createStore({
+    const [editState, setEditState] = createStore<{
+        canUndo: boolean;
+        canRedo: boolean;
+        isBold: boolean;
+        canSetBold: boolean;
+        isItalic: boolean;
+        canSetItalic: boolean;
+        isStrike: boolean;
+        canSetStrike: boolean;
+        isCode: boolean;
+        canSetCode: boolean;
+        isUnderline: boolean;
+        canSetUnderline: boolean;
+        isHighlight: boolean;
+        canSetHighlight: boolean;
+        isLink: boolean;
+        canSetLink: (link: string) => boolean;
+    }>({
         canUndo: false,
         canRedo: false,
         isBold: false,
@@ -60,6 +79,10 @@ export function Tiptap(props: Props) {
         canSetCode: false,
         isUnderline: false,
         canSetUnderline: false,
+        isHighlight: false,
+        canSetHighlight: false,
+        isLink: false,
+        canSetLink: () => false,
     });
     
 
@@ -214,7 +237,12 @@ export function Tiptap(props: Props) {
                     canSetCode: editor.can().setCode(),
                     isUnderline: editor.isActive("underline"),
                     canSetUnderline: editor.can().setUnderline(),
+                    isHighlight: editor.isActive("highlight"),
+                    canSetHighlight: editor.can().setHighlight(),
+                    isLink: editor.isActive("link"),
+                    canSetLink: (link) => editor.can().setLink({ href: link }),
                 });
+                setTempLink(editor.getAttributes("link").href || "");
             });
         },
     }));
@@ -249,6 +277,9 @@ export function Tiptap(props: Props) {
     const toggleStrike = () => editor()?.chain().focus().toggleStrike().run();
     const toggleCode = () => editor()?.chain().focus().toggleCode().run();
     const toggleUnderline = () => editor()?.chain().focus().toggleUnderline().run();
+    const toggleHighlight = () => editor()?.chain().focus().toggleHighlight().run();
+    const setLink = (link: string) => editor()?.chain().focus().setLink({ href: link }).run();
+    const unSetLink = () => editor()?.chain().focus().unsetLink().run();
 
     return (
         <div
@@ -264,7 +295,7 @@ export function Tiptap(props: Props) {
                     ref={editorRef}
                 ></article>
             </div>
-            <div class="px-2 py-0.5 absolute bottom-2 left-1/2 -translate-x-1/2 shadow-md rounded flex flex-nowrap overflow-x-auto gap-1 bg-base-100">
+            <div class="px-2 py-0.5 absolute bottom-2 left-1/2 -translate-x-1/2 shadow-md rounded flex flex-nowrap gap-1 bg-base-100">
                 <button class="btn btn-square btn-ghost btn-sm" disabled={!editState.canUndo}  onclick={undo}>
                     <Icon icon={Undo2Icon} />
                 </button>
@@ -317,6 +348,49 @@ export function Tiptap(props: Props) {
                 >
                     <Icon icon={UnderlineIcon} />
                 </button>
+                <button
+                    class="btn btn-square btn-ghost btn-sm" onclick={toggleHighlight}
+                    disabled={!editState.canSetHighlight}
+                    classList={{
+                        "btn-active btn-primary": editState.isHighlight,
+                    }}
+                >
+                    <Icon icon={PaintBucket} />
+                </button>
+                <div
+                    class="dropdown dropdown-top dropdown-center"
+                    classList={{
+                        "dropdown-open": editState.isLink,
+                    }}>
+                    <div
+                        tabIndex={0}
+                        role="button"
+                        class="btn btn-square btn-ghost btn-sm"
+                        classList={{
+                            "btn-active btn-primary": editState.isLink,
+                            "btn-disabled": !editState.canSetLink(tempLink()),
+                        }}>
+                        <Icon icon={LinkIcon} />
+                    </div>
+                    <div tabIndex="-1" class="dropdown-content menu menu-sm bg-base-100 rounded-box z-1 w-72 p-2 shadow-sm">
+                        <div class="flex items-center gap-1">
+                            <input
+                                type="text"
+                                placeholder="https://example.com"
+                                class="input input-sm"
+                                value={tempLink()}
+                                oninput={(e) => setTempLink(e.target.value)}
+                            />
+                            <div class="w-0.5 h-4 bg-base-200 rounded mx-1 my-auto"></div>
+                            <button class="btn btn-square btn-ghost btn-sm" onclick={() => setLink(tempLink())}>
+                                <Icon icon={CheckIcon} />
+                            </button>
+                            <button class="btn btn-square btn-ghost btn-sm" onclick={() => unSetLink()}>
+                                <Icon icon={X} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

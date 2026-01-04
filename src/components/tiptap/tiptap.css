@@ -112,6 +112,6 @@
     }
 
     mark {
-        @apply bg-secondary/50 text-secondary-content rounded box-decoration-clone py-1 px-2;
+        @apply bg-secondary/50 text-secondary-content rounded box-decoration-clone;
     }
 }
