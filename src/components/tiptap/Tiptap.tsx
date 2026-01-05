@@ -46,6 +46,7 @@ import {
 import { createStore } from "solid-js/store";
 import { ToolButton } from "./components/ToolButton";
 import { ToolDivider } from "./components/ToolDivider";
+import { OrangeMarkdown } from "./extansions/OrangeMarkdown/OrangeMarkdown";
 
 type Props = {
     content: string;
@@ -113,7 +114,6 @@ export function Tiptap(props: Props) {
             Paragraph,
             Text,
             Typography,
-            Markdown,
             ListKit.configure({
                 taskItem: false,
             }),
@@ -165,6 +165,7 @@ export function Tiptap(props: Props) {
             TextStyleKit,
             Underline,
 
+            OrangeMarkdown,
             OrangeTaskItem,
             OrangeCodeBlock,
         ],
@@ -231,6 +232,7 @@ export function Tiptap(props: Props) {
             dirtyTimeoutId = setTimeout(() => {
                 const currentContent = editor.getMarkdown();
                 props.onFileDirty(currentContent !== props.content);
+                console.log(currentContent);
             }, 200);
         },
         onFocus: () => {
@@ -420,8 +422,8 @@ export function Tiptap(props: Props) {
                             </button>
                         </div>
                     </div>
-                </div>
-                <ToolDivider />
+                </div> 
+                {/* <ToolDivider />
                 <ToolButton
                     icon={SuperscriptIcon}
                     disabled={!editState.canSetSuperscript}
@@ -429,6 +431,7 @@ export function Tiptap(props: Props) {
                     tooltip="command + ."
                     active={editState.isSuperscript}
                 />
+                */}
             </div>
         </div>
     );
