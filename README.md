@@ -14,6 +14,7 @@
 
 #### preview
 
-<img width="587" height="734" alt="image" src="https://github.com/user-attachments/assets/42115e60-9f11-4a57-96d1-46fb70866177" />
+<img width="966" height="729" alt="image" src="https://github.com/user-attachments/assets/e8c32c60-4d0c-4e7a-baf1-0254ec87ec30" />
+
 
 > Thanks to [tippap](https://tiptap.dev/), [tauri](https://v2.tauri.app/), [bun](https://bun.sh/) and [solid js](https://www.solidjs.com/)
