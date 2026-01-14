@@ -3,14 +3,13 @@ import { createEffect, createSignal, on, onCleanup } from "solid-js";
 import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
-import { Markdown } from "@tiptap/markdown";
 import { ListKit } from "@tiptap/extension-list";
 import { UndoRedo } from "@tiptap/extensions/undo-redo";
 import { OrangeTaskItem } from "./extansions/OrangeTaskItem/OrangeTaskItem";
 import { OrangeCodeBlock } from "./extansions/OrangeCodeBlock/OrangeCodeBlock";
 import Typography from "@tiptap/extension-typography";
 import Code from "@tiptap/extension-code";
-import Heading from "@tiptap/extension-heading";
+import Heading, { Level } from "@tiptap/extension-heading";
 import { Placeholder, Dropcursor } from "@tiptap/extensions";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import Image from "@tiptap/extension-image";
@@ -28,25 +27,22 @@ import Underline from "@tiptap/extension-underline";
 import "./tiptap.css";
 import { saveImage } from "../../functions";
 import toast from "solid-toast";
-import { Icon } from "../Icon";
 import {
     BoldIcon,
-    CheckIcon,
     CodeXml,
     ItalicIcon,
-    LinkIcon,
     PaintBucket,
     Redo2Icon,
     Strikethrough,
-    SuperscriptIcon,
     UnderlineIcon,
     Undo2Icon,
-    X,
 } from "lucide-solid";
 import { createStore } from "solid-js/store";
 import { ToolButton } from "./components/ToolButton";
 import { ToolDivider } from "./components/ToolDivider";
 import { OrangeMarkdown } from "./extansions/OrangeMarkdown/OrangeMarkdown";
+import { LinkMenu } from "./components/LinkMenu";
+import { HeadMenu } from "./components/HeadMenu";
 
 type Props = {
     content: string;
@@ -84,6 +80,8 @@ export function Tiptap(props: Props) {
         canSetLink: (link: string) => boolean;
         isSuperscript: boolean;
         canSetSuperscript: boolean;
+        headLevel: Level | undefined;
+        canSetHead: (level: Level) => boolean,
     }>({
         canUndo: false,
         canRedo: false,
@@ -103,6 +101,8 @@ export function Tiptap(props: Props) {
         canSetLink: () => false,
         isSuperscript: false,
         canSetSuperscript: false,
+        headLevel: undefined,
+        canSetHead: () => false,
     });
 
     const editor = createTiptapEditor(() => ({
@@ -244,6 +244,7 @@ export function Tiptap(props: Props) {
             }
 
             rafId = requestAnimationFrame(() => {
+                console.log(editor.getAttributes("heading").level);
                 setEditState({
                     canUndo: editor.can().undo(),
                     canRedo: editor.can().redo(),
@@ -263,6 +264,8 @@ export function Tiptap(props: Props) {
                     canSetLink: (link) => editor.can().setLink({ href: link }),
                     isSuperscript: editor.isActive("superscript"),
                     canSetSuperscript: editor.can().setSuperscript(),
+                    headLevel: editor.getAttributes("heading").level,
+                    canSetHead: (level: Level) => editor.can().setHeading({ level }),
                 });
                 setTempLink(editor.getAttributes("link").href || "");
             });
@@ -310,6 +313,8 @@ export function Tiptap(props: Props) {
     const unSetLink = () => editor()?.chain().focus().unsetLink().run();
     const toggleSuperscript = () =>
         editor()?.chain().focus().toggleSuperscript().run();
+    const setHead = (level: Level) =>
+        editor()?.chain().focus().setHeading({ level }).run();
 
     return (
         <div
@@ -334,6 +339,12 @@ export function Tiptap(props: Props) {
                     disabled={!editState.canRedo}
                     onClick={redo}
                     tooltip="command + shift + z"
+                />
+                <ToolDivider />
+                <HeadMenu
+                    canSetHead={(level: Level) => editState.canSetHead(level)}
+                    setHead={setHead}
+                    headLevel={editState.headLevel}
                 />
                 <ToolDivider />
                 <ToolButton
@@ -378,51 +389,14 @@ export function Tiptap(props: Props) {
                     tooltip="command + h"
                     active={editState.isHighlight}
                 />
-                <div
-                    class="dropdown dropdown-top dropdown-center"
-                    classList={{
-                        "dropdown-open": editState.isLink,
-                    }}
-                >
-                    <div
-                        tabIndex={0}
-                        role="button"
-                        class="btn btn-square btn-ghost btn-sm"
-                        classList={{
-                            "btn-active btn-primary": editState.isLink,
-                            "btn-disabled": !editState.canSetLink(tempLink()),
-                        }}
-                    >
-                        <Icon icon={LinkIcon} />
-                    </div>
-                    <div
-                        tabIndex="-1"
-                        class="dropdown-content menu menu-sm bg-base-100 rounded-box z-1 w-72 p-2 shadow-sm"
-                    >
-                        <div class="flex items-center gap-1">
-                            <input
-                                type="text"
-                                placeholder="https://example.com"
-                                class="input input-sm"
-                                value={tempLink()}
-                                oninput={(e) => setTempLink(e.target.value)}
-                            />
-                            <div class="w-0.5 h-4 bg-base-200 rounded mx-1 my-auto"></div>
-                            <button
-                                class="btn btn-square btn-ghost btn-sm"
-                                onclick={() => setLink(tempLink())}
-                            >
-                                <Icon icon={CheckIcon} />
-                            </button>
-                            <button
-                                class="btn btn-square btn-ghost btn-sm"
-                                onclick={() => unSetLink()}
-                            >
-                                <Icon icon={X} />
-                            </button>
-                        </div>
-                    </div>
-                </div> 
+                <LinkMenu
+                    isLink={editState.isLink}
+                    canSetLink={editState.canSetLink}
+                    setLink={setLink}
+                    unSetLink={unSetLink}
+                    tempLink={tempLink()}
+                    setTempLink={setTempLink}
+                />
                 {/* <ToolDivider />
                 <ToolButton
                     icon={SuperscriptIcon}

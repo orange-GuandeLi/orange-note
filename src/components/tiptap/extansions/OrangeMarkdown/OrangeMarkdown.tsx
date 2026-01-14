@@ -1,5 +1,3 @@
-import { Markdown } from "@tiptap/markdown"
+import { Markdown } from "@tiptap/markdown";
 
-export const OrangeMarkdown = Markdown.extend({
-    
-})
+export const OrangeMarkdown = Markdown.extend({});

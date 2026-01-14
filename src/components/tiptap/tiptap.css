@@ -2,22 +2,22 @@
 
 .tiptap {
     h1 {
-        @apply text-4xl;
+        @apply text-4xl min-w-1;
     }
     h2 {
-        @apply text-3xl;
+        @apply text-3xl min-w-1;
     }
     h3 {
-        @apply text-2xl;
+        @apply text-2xl min-w-1;
     }
     h4 {
-        @apply text-xl;
+        @apply text-xl min-w-1;
     }
     h5 {
-        @apply text-lg;
+        @apply text-lg min-w-1;
     }
     h6 {
-        @apply text-base;
+        @apply text-base min-w-1;
     }
 
     p.is-editor-empty:first-child::before {
