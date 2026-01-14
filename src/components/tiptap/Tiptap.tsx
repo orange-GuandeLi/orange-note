@@ -313,8 +313,8 @@ export function Tiptap(props: Props) {
     const unSetLink = () => editor()?.chain().focus().unsetLink().run();
     const toggleSuperscript = () =>
         editor()?.chain().focus().toggleSuperscript().run();
-    const setHead = (level: Level) =>
-        editor()?.chain().focus().setHeading({ level }).run();
+    const toggleHead = (level: Level) =>
+        editor()?.chain().focus().toggleHeading({ level }).run();
 
     return (
         <div
@@ -343,7 +343,7 @@ export function Tiptap(props: Props) {
                 <ToolDivider />
                 <HeadMenu
                     canSetHead={(level: Level) => editState.canSetHead(level)}
-                    setHead={setHead}
+                    toggleHead={toggleHead}
                     headLevel={editState.headLevel}
                 />
                 <ToolDivider />

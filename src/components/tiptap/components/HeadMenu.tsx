@@ -6,7 +6,7 @@ import { Level } from "@tiptap/extension-heading";
 type Prop = {
     headLevel?: Level;
     canSetHead: (level: Level) => boolean;
-    setHead: (level: Level) => void;
+    toggleHead: (level: Level) => void;
 }
 
 export function HeadMenu(props: Prop) {
@@ -25,6 +25,8 @@ export function HeadMenu(props: Prop) {
             setHeadIcon(() => Heading5);
         } else if (props.headLevel == 6) {
             setHeadIcon(() => Heading6);
+        } else {
+            setHeadIcon(() => Heading);
         }
     })
 
@@ -67,9 +69,9 @@ export function HeadMenu(props: Prop) {
             <div
                 tabIndex={0}
                 role="button"
-                class="btn btn-square btn-ghost btn-sm gap-0 btn-primary"
+                class="btn btn-square btn-ghost btn-sm gap-0"
                 classList={{
-                    "btn-active": props.headLevel !== undefined,
+                    "btn-active btn-primary": props.headLevel !== undefined,
                     "btn-disabled": !canSetHead,
                 }}
             >
@@ -86,7 +88,7 @@ export function HeadMenu(props: Prop) {
                             <a
                                 class="whitespace-nowrap"
                                 onclick={() => {
-                                    props.setHead(level);
+                                    props.toggleHead(level);
                                 }}
                                 classList={{
                                     "menu-active": props.headLevel == level,
